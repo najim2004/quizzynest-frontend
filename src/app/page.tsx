@@ -1,10 +1,12 @@
-import Hero from "@/components/hero/hero";
+import Hero from "@/components/home/hero/hero";
+import QuizCategories from "@/components/home/quiz-categories/quiz-categories";
 import React from "react";
 
 const Home = () => {
   return (
     <>
       <Hero />
+      <QuizCategories/>
     </>
   );
 };
