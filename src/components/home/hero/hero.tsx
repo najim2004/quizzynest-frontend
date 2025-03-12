@@ -5,7 +5,7 @@ import { Play } from "lucide-react";
 
 const Hero = () => {
   return (
-    <section className="relative bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] min-h-screen -mt-16 py-10 md:py-16">
+    <section className="relative bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] min-h-screen -mt-16">
       <div className="container mx-auto px-4 grid lg:grid-cols-2 md:grid-cols-1 items-center min-h-screen gap-8 py-20 lg:gap-20">
         {/* Text Content */}
         <div className="space-y-6 md:space-y-8 z-10 flex flex-col items-center text-center lg:text-start lg:items-start pt-20 lg:pt-0">

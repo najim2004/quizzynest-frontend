@@ -14,36 +14,49 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
 
 export function Navbar() {
   const { setTheme, theme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [navBg, setNavBg] = useState("bg-transparent");
 
+  const isHome = usePathname() === "/";
+
   const isLoggedIn = false; // Authentication Status (Change accordingly)
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setNavBg("bg-white/90 dark:bg-gray-900/90 backdrop-blur-md");
+      if (window.scrollY > 100) {
+        setNavBg(
+          "bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] dark:from-gray-900 dark:to-gray-900 backdrop-blur-md"
+        );
       } else {
         setNavBg("bg-transparent");
       }
     };
-    window.addEventListener("scroll", handleScroll);
+    if (!isHome) {
+      setNavBg(
+        "bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] dark:from-gray-900 dark:to-gray-900 backdrop-blur-md"
+      );
+    } else {
+      setNavBg("bg-transparent");
+      window.addEventListener("scroll", handleScroll);
+    }
+
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHome]);
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${navBg}`}
+      className={`sticky top-0 left-0 w-full z-50 transition-all duration-500 ${navBg}`}
     >
       <div className="container mx-auto px-4">
         <nav className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center space-x-2 font-bold text-xl text-gray-900 dark:text-white"
+            className="flex items-center space-x-2 font-bold text-xl text-white"
           >
             <Brain />
             <span>QuizzyNest</span>
@@ -56,7 +69,7 @@ export function Navbar() {
                 <Link
                   key={index}
                   href={`/${name.toLowerCase().replace(" ", "-")}`}
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  className="text-sm font-medium text-gray-300 transition-colors"
                 >
                   {name}
                 </Link>
@@ -71,7 +84,7 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              className="text-gray-300 hover:text-gray-300 hover:bg-transparent dark:hover:bg-transparent"
             >
               {theme === "dark" ? (
                 <Sun className="h-5 w-5" />
@@ -119,17 +132,17 @@ export function Navbar() {
                 <div className="flex items-center gap-4">
                   <Link
                     href="/login"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    className="text-sm font-medium text-gray-300"
                   >
                     Login
                   </Link>
-                  <Button
-                    asChild
-                    variant="secondary"
-                    className="bg-gray-700 text-white hover:bg-gray-800 transition-colors"
+
+                  <Link
+                    href="/signup"
+                    className="text-sm font-medium text-gray-300"
                   >
-                    <Link href="/signup">Sign up</Link>
-                  </Button>
+                    Sign up
+                  </Link>
                 </div>
               )}
             </div>
