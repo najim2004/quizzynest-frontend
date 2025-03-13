@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar/navbar";
 import Footer from "@/components/footer/footer";
+import Hider from "@/components/hider/hider";
 
 const poppins = Poppins({
   subsets: ["latin"], // Ensures language support
@@ -32,9 +33,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
+          <Hider pathnames={["dashboard"]}>
+            <Navbar />
+          </Hider>
           <main className="dark:bg-gray-900">{children}</main>
-          <Footer />
+          <Hider pathnames={["dashboard"]}>
+            <Footer />
+          </Hider>
         </ThemeProvider>
       </body>
     </html>
