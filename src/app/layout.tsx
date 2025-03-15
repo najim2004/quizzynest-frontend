@@ -37,7 +37,7 @@ export default function RootLayout({
             <Navbar />
           </Hider>
           <main className="dark:bg-gray-900">{children}</main>
-          <Hider pathnames={["dashboard"]}>
+          <Hider pathnames={["dashboard","login","signup"]}>
             <Footer />
           </Hider>
         </ThemeProvider>

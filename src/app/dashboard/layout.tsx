@@ -18,8 +18,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   if (!checkAuth()) return null;
 
   return (
-    <div className="h-screen p-4">
-      <div className="h-full flex border overflow-hidden rounded-2xl">
+    <div className="h-screen p-8 bg-gray-50">
+      <div className="h-full flex border overflow-hidden rounded-4xl bg-white">
         <DashboardSidebar />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>

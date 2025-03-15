@@ -240,7 +240,7 @@ function MobileMenu({
   onClose: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-6 mt-6">
+    <div className="flex flex-col gap-6 mt-6 p-4">
       {NAV_LINKS.map((link) => (
         <Link
           key={link.href}
