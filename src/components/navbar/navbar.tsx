@@ -241,7 +241,7 @@ function MobileMenu({
 }) {
   return (
     <div className="flex flex-col gap-6 mt-6 p-4">
-      {NAV_LINKS.map((link) => (
+      {NAV_LINKS.map((link: { name: string; href: string }) => (
         <Link
           key={link.href}
           href={link.href}

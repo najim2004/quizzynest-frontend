@@ -1,6 +1,5 @@
 import {  Twitter, Facebook, Instagram, Brain } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 interface FooterLink {
   label: string;

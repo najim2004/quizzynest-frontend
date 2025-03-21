@@ -12,10 +12,9 @@ interface NavLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 }
 
 export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
-  ({ children, className, href, activeClassName, ...props }, ref) => {
+  ({ children, className, href, activeClassName, ...props }) => {
     const pathname = usePathname();
     const isActive = pathname === href;
-
     return (
       <Link
         href={href}
