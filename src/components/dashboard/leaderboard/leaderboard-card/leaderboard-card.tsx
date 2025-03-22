@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { CoinsIcon } from "lucide-react";
 
 type LeaderboardEntry = {
-  id: number;
+  id?: number;
   name: string;
   avatar: string;
   score: number;
@@ -16,7 +16,7 @@ export default function LeaderboardCard({
   entry: LeaderboardEntry;
 }) {
   return (
-    <Card className="flex-row items-center gap-4 p-4 rounded-lg bg-white w-full transition-all shadow-none">
+    <Card className="flex-row items-center gap-4 px-4 py-3.5 rounded-lg bg-white w-full transition-all shadow-none">
       {/* Rank Indicator */}
       <div className="size-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 font-medium text-sm">
         {entry.position}
@@ -24,7 +24,7 @@ export default function LeaderboardCard({
 
       {/* Avatar */}
       <Avatar className="size-14">
-        <AvatarImage src={entry.avatar} alt={entry.name} />
+        <AvatarImage className="object-cover" src={entry.avatar} alt={entry.name} />
         <AvatarFallback>{entry.name.charAt(0)}</AvatarFallback>
       </Avatar>
 

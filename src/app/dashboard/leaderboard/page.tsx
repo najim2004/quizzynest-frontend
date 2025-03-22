@@ -193,6 +193,16 @@ export default function LeaderboardUI() {
           ))}
         </div>
       </div>
+      <div className="flex justify-center items-center mt-4 *:max-w-1/2">
+        <LeaderboardCard
+          entry={{
+            name: "Najim(You)",
+            avatar: "https://ik.imagekit.io/golcqzkpl/1734767925484-7x84ch_4esE9FmK3?updatedAt=1734767928633",
+            score: 300,
+            position: 12,
+          }}
+        />
+      </div>
     </div>
   );
 }
