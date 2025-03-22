@@ -1,13 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
-  Calendar,
   Clock,
-  Award,
-  ChevronRight,
   CheckCircle2,
   XCircle,
   Clock3,
@@ -53,54 +48,6 @@ const quizzes = [
     status: "completed",
     categoryColor: "bg-purple-500",
   },
-  //   {
-  //     id: 4,
-  //     title: "English Literature: Shakespeare",
-  //     category: "Literature",
-  //     date: "Mar 15, 2024",
-  //     score: 65,
-  //     totalQuestions: 20,
-  //     correctAnswers: 13,
-  //     timeSpent: "20m 05s",
-  //     status: "completed",
-  //     categoryColor: "bg-amber-500",
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Geography: World Capitals",
-  //     category: "Geography",
-  //     date: "Mar 12, 2024",
-  //     score: 100,
-  //     totalQuestions: 10,
-  //     correctAnswers: 10,
-  //     timeSpent: "5m 30s",
-  //     status: "completed",
-  //     categoryColor: "bg-cyan-500",
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "Computer Science: Algorithms",
-  //     category: "Technology",
-  //     date: "Mar 10, 2024",
-  //     score: 0,
-  //     totalQuestions: 15,
-  //     correctAnswers: 0,
-  //     timeSpent: "2m 10s",
-  //     status: "abandoned",
-  //     categoryColor: "bg-indigo-500",
-  //   },
-  //   {
-  //     id: 7,
-  //     title: "Art History: Renaissance",
-  //     category: "Art",
-  //     date: "Mar 5, 2024",
-  //     score: 88,
-  //     totalQuestions: 18,
-  //     correctAnswers: 16,
-  //     timeSpent: "14m 25s",
-  //     status: "completed",
-  //     categoryColor: "bg-rose-500",
-  //   },
 ];
 
 // Status badge component
