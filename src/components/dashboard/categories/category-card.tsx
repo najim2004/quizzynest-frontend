@@ -34,7 +34,7 @@ export const QuizCard = ({
           <div className="flex-1 flex justify-between items-center">
             <div className={`bg-${iconBgColor} p-3 rounded-md`}>{icon}</div>
 
-            <span className="text-sm text0-gray-500">
+            <span className="text-sm text-gray-500">
               {questionCount} questions
             </span>
           </div>

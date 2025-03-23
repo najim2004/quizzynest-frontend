@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar/navbar";
 import Footer from "@/components/footer/footer";
 import Hider from "@/components/hider/hider";
+import { Toaster } from "sonner";
 
 const poppins = Poppins({
   subsets: ["latin"], // Ensures language support
@@ -37,9 +38,10 @@ export default function RootLayout({
             <Navbar />
           </Hider>
           <main className="dark:bg-gray-900">{children}</main>
-          <Hider pathnames={["dashboard","login","signup"]}>
+          <Hider pathnames={["dashboard", "login", "signup"]}>
             <Footer />
           </Hider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

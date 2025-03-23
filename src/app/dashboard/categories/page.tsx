@@ -1,12 +1,11 @@
 import QuizCategories from "@/components/dashboard/categories/categories";
-import { Button } from "@/components/ui/button";
+import CategoryCreateButton from "@/components/dashboard/categories/category-create-button";
 import { Input } from "@/components/ui/input";
-import { Plus } from "lucide-react";
 import React from "react";
 
 const CategoriesPage = () => {
   return (
-    <div>
+    <div className="relative h-full w-full p-0.5">
       <div className="flex items-center justify-between mb-4">
         <Input
           name="search"
@@ -15,10 +14,7 @@ const CategoriesPage = () => {
           className="mr-2 w-min focus-visible:ring-0"
         />
 
-        <Button variant="outline" size="icon">
-          <Plus className="h-4 w-4" />
-          <span className="text-gray-500 sr-only">Add Category</span>
-        </Button>
+        <CategoryCreateButton/>
       </div>
       <QuizCategories />
     </div>
