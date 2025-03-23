@@ -30,6 +30,7 @@ const ActionMenu = () => {
         <DropdownMenuContent align="end" className="w-[200px]">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuGroup>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>Edit</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-600">
