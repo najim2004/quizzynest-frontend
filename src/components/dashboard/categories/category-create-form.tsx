@@ -111,6 +111,7 @@ const CreateCategoryForm: React.FC = () => {
   };
 
   const onSubmit = async (values: CategoryFormValues): Promise<void> => {
+    console.log(values);
     setLoading(true);
     try {
       // TODO: Implement API call here

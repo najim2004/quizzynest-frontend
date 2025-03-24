@@ -1,5 +1,5 @@
 import { NavLink } from "@/components/navlink/navlink";
-import { Brain, Home, PuzzleIcon, Settings, ShoppingCart, Ticket } from "lucide-react";
+import { Brain, Home,  Settings, ShoppingCart, Ticket } from "lucide-react";
 import { MdCategory, MdOutlineLeaderboard } from "react-icons/md";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 
@@ -8,6 +8,7 @@ import { IoExtensionPuzzleOutline } from "react-icons/io5";
 
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { FaQuestion } from "react-icons/fa";
 
 // Menu items.
 const items = [
@@ -37,9 +38,9 @@ const items = [
     icon:MdCategory
   },
   {
-    title:"Quizzes",
-    url:"/dashboard/quizzes",
-    icon: PuzzleIcon
+    title:"Questions",
+    url:"/dashboard/questions",
+    icon: FaQuestion
   },
   {
     title:"Vouchers",
