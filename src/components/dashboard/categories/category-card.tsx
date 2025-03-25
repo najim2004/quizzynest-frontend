@@ -28,7 +28,9 @@ export const QuizCard = ({
   isAdmin = false,
 }: QuizCardProps) => {
   return (
-    <Card className={`bg-gradient-to-br ${gradientBg} border-none shadow-sm gap-2`}>
+    <Card
+      className={`bg-gradient-to-br ${gradientBg} border-none shadow-sm gap-2`}
+    >
       <CardHeader className="py-0">
         <div className="flex justify-between items-center">
           <div className="flex-1 flex justify-between items-center">
@@ -38,7 +40,7 @@ export const QuizCard = ({
               {questionCount} questions
             </span>
           </div>
-          <ActionMenu />
+          {isAdmin && <ActionMenu />}
         </div>
       </CardHeader>
       <CardContent>

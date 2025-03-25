@@ -18,6 +18,8 @@ import { cn } from "@/lib/utils";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { Brain } from "lucide-react";
+import useAuthStore from "@/stores/authStore";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -29,9 +31,20 @@ export default function Login() {
     resolver: zodResolver(formSchema),
     defaultValues: { email: "", password: "" },
   });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const { login } = useAuthStore();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    try {
+      const result = await login(values.email, values.password);
+      if (result?.success) {
+        toast.success(result?.message || "Login successful");
+      } else {
+        toast.error(result?.message || "Login failed");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Login failed");
+      console.error("Login failed:", error);
+    }
   }
 
   return (

@@ -18,6 +18,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
+import useAuthStore from "@/stores/authStore";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -53,9 +56,31 @@ export default function Signup() {
       terms: false,
     },
   });
+  const { register } = useAuthStore();
+  const router = useRouter();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const result = await register(
+        values.fullName,
+        values.email,
+        values.password
+      );
+      console.log(result);
+
+      if (result?.success) {
+        // You might want to add a toast notification here for success
+        router.push("/login");
+        toast.success(result?.message || "User created successfully");
+      } else {
+        // You might want to add a toast notification here for failure
+        toast.error(result?.message || "User creation failed");
+      }
+    } catch (error) {
+      toast.error(error?.message || "Registration failed");
+      // The error handling is already managed by the authStore
+      console.error("Registration failed:", error);
+    }
   }
 
   return (
