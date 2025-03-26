@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import useAuthStore from "@/stores/authStore";
 
 // Constants
 const NAV_LINKS = [
@@ -26,21 +27,18 @@ const NAV_LINKS = [
 // Types
 type NavLink = (typeof NAV_LINKS)[number];
 
-interface NavbarProps {
-  isAuthenticated?: boolean;
-}
-
 /**
  * Navbar component for QuizzyNest application
  * Handles navigation, theme toggling, and user authentication states
  * @param {NavbarProps} props - Component props
  * @returns {JSX.Element} Navbar component
  */
-export function Navbar({ isAuthenticated = false }: NavbarProps = {}) {
+export function Navbar() {
   const { setTheme, theme } = useTheme();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [navBackground, setNavBackground] = useState("bg-transparent");
+  const { isAuthenticated } = useAuthStore();
 
   const isHomePage = pathname === "/";
 
@@ -176,6 +174,8 @@ function ThemeToggle({
 
 // User Dropdown Component
 function UserDropdown() {
+  const { user, logout } = useAuthStore();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -184,9 +184,9 @@ function UserDropdown() {
           className="relative h-8 w-8 rounded-full ring-2 ring-gray-400 dark:ring-gray-700 hover:ring-gray-600 dark:hover:ring-gray-500"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt="User avatar" />
-            <AvatarFallback className="bg-gray-800 text-gray-200">
-              UN
+            <AvatarImage src={user?.profile?.profilePic} alt={`${user?.fullName}'s avatar`} />
+            <AvatarFallback className="dark:bg-gray-800 dark:text-gray-200">
+              {user?.fullName?.charAt(0)?.toUpperCase() || 'UN'}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -202,7 +202,10 @@ function UserDropdown() {
           <Link href="/profile">Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-400 hover:text-red-300">
+        <DropdownMenuItem 
+          className="text-red-400 hover:text-red-300"
+          onClick={logout}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
@@ -239,6 +242,8 @@ function MobileMenu({
   isAuthenticated: boolean;
   onClose: () => void;
 }) {
+  const { logout } = useAuthStore();
+
   return (
     <div className="flex flex-col gap-6 mt-6 p-4">
       {NAV_LINKS.map((link: { name: string; href: string }) => (
@@ -268,7 +273,13 @@ function MobileMenu({
             >
               Profile
             </Link>
-            <button className="text-base font-medium text-red-400 hover:text-red-300 text-left">
+            <button 
+              onClick={() => {
+                logout();
+                onClose();
+              }}
+              className="text-base font-medium text-red-400 hover:text-red-300 text-left"
+            >
               Log out
             </button>
           </>

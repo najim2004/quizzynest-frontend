@@ -45,15 +45,9 @@ interface AuthState {
   getUser: () => Promise<void>;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-if (!BASE_URL) {
-  throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
-}
-
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: "/api",
   withCredentials: true,
 });
 
@@ -69,12 +63,13 @@ const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string) => {
         try {
           set({ loading: true, error: null });
-          const { data } = await api.post<AuthResponse>("/api/auth/login", {
+          const { data } = await api.post<AuthResponse>("/auth/login", {
             email,
             password,
           });
 
           if (data.success && data?.data.accessToken) {
+            get().getUser();
             set({
               accessToken: data?.data.accessToken,
               isAuthenticated: true,
@@ -90,7 +85,7 @@ const useAuthStore = create<AuthState>()(
             error: axiosError.response?.data?.message || "Login failed",
             isAuthenticated: false,
           });
-          throw error;
+          return error.response?.data;
         }
       },
 
@@ -100,7 +95,7 @@ const useAuthStore = create<AuthState>()(
           const { data } = await api.post<{
             success: boolean;
             message: string;
-          }>("/api/auth/register", {
+          }>("/auth/register", {
             fullName,
             email,
             password,
@@ -114,22 +109,24 @@ const useAuthStore = create<AuthState>()(
             loading: false,
             error: axiosError.response?.data?.message || "Registration failed",
           });
-          throw error;
+          return error.response?.data;
         }
       },
 
       getUser: async () => {
         try {
+          // if (!get().accessToken) throw new Error("No access token");
           set({ loading: true, error: null });
-          const { data } = await api.get<{ success: boolean; data: User }>(
-            "/api/auth/me",
+          const { data } = await api<{ success: boolean; data: User }>(
+            "/auth/me",
             {
               headers: {
                 Authorization: `Bearer ${get().accessToken}`,
               },
             }
           );
-          if (data.success) {
+          console.log(data);
+          if (data?.success) {
             set({
               user: data.data,
               isAuthenticated: true,
@@ -137,23 +134,39 @@ const useAuthStore = create<AuthState>()(
             });
           }
         } catch (error) {
+          console.log(error);
           const axiosError = error as AxiosError<ApiError>;
           set({
             loading: false,
             error: axiosError.response?.data?.message || "Failed to fetch user",
             isAuthenticated: false,
           });
-          throw error;
+          return (
+            error.response?.data || {
+              success: false,
+              message: error.message || "Failed to fetch user",
+            }
+          );
         }
       },
 
-      logout: () => {
-        set({
-          user: null,
-          accessToken: null,
-          isAuthenticated: false,
-          error: null,
-        });
+      logout: async () => {
+        try {
+          const { data } = await api.post<{
+            success: boolean;
+            message: string;
+          }>(`/auth/logout`);
+          if (data.success) {
+            set({ user: null, accessToken: null, isAuthenticated: false });
+            return { success: true, message: data.message };
+          }
+        } catch (error) {
+          const axiosError = error as AxiosError<ApiError>;
+          set({
+            error: axiosError.response?.data?.message || "Failed to logout",
+          });
+          return error.response?.data;
+        }
       },
 
       clearError: () => {
