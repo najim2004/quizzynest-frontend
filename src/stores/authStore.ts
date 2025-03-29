@@ -1,7 +1,14 @@
+import { AxiosError } from "axios";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios, { AxiosError } from "axios";
+import api from "@/components/axios/api";
+import useProfileStore from "./profileStore";
 
+export interface APIResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
 interface User {
   id: number;
   email: string;
@@ -13,17 +20,15 @@ interface User {
   };
 }
 
-interface AuthResponse {
-  success: boolean;
-  data: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
-    user: User;
-  };
+interface AuthData {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  user: User;
 }
 
 interface ApiError {
+  success: boolean;
   message: string;
   statusCode: number;
 }
@@ -34,22 +39,19 @@ interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<AuthResponse | undefined>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<APIResponse<AuthData> | ApiError>;
   register: (
     fullName: string,
     email: string,
     password: string
-  ) => Promise<{ success: boolean; message: string }>;
-  logout: () => void;
+  ) => Promise<ApiError | { success: boolean; message: string }>;
+  logout: () => Promise<APIResponse<null> | ApiError | undefined>;
   clearError: () => void;
   getUser: () => Promise<void>;
 }
-
-// Create axios instance with default config
-const api = axios.create({
-  baseURL: "/api",
-  withCredentials: true,
-});
 
 const useAuthStore = create<AuthState>()(
   persist(
@@ -63,16 +65,21 @@ const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string) => {
         try {
           set({ loading: true, error: null });
-          const { data } = await api.post<AuthResponse>("/auth/login", {
-            email,
-            password,
-          });
+          const response = await api.post<APIResponse<AuthData>>(
+            "/auth/login",
+            {
+              email,
+              password,
+            }
+          );
 
-          if (data.success && data?.data.accessToken) {
-            get().getUser();
+          const { data } = response;
+
+          if (data.success && data.data.accessToken) {
             set({
-              accessToken: data?.data.accessToken,
+              accessToken: data.data.accessToken,
               isAuthenticated: true,
+              user: data.data.user,
               loading: false,
             });
           }
@@ -82,10 +89,11 @@ const useAuthStore = create<AuthState>()(
           const axiosError = error as AxiosError<ApiError>;
           set({
             loading: false,
-            error: axiosError.response?.data?.message || "Login failed",
+            error:
+              axiosError.response?.data?.message || "Authentication failed",
             isAuthenticated: false,
           });
-          return error.response?.data;
+          throw axiosError.response?.data;
         }
       },
 
@@ -109,69 +117,80 @@ const useAuthStore = create<AuthState>()(
             loading: false,
             error: axiosError.response?.data?.message || "Registration failed",
           });
-          return error.response?.data;
+          return {
+            success: false,
+            message:
+              axiosError.response?.data?.message || "Registration failed",
+          };
         }
       },
 
       getUser: async () => {
         try {
-          // if (!get().accessToken) throw new Error("No access token");
-          set({ loading: true, error: null });
-          const { data } = await api<{ success: boolean; data: User }>(
-            "/auth/me",
-            {
-              headers: {
-                Authorization: `Bearer ${get().accessToken}`,
-              },
-            }
-          );
-          console.log(data);
-          if (data?.success) {
+          const token = get().accessToken;
+          if (!token) throw new Error("No access token available");
+
+          const response = await api.get<APIResponse<User>>("/auth/me");
+          const { data } = response;
+
+          if (data.success) {
             set({
               user: data.data,
               isAuthenticated: true,
               loading: false,
             });
+
+            const profileStore = useProfileStore.getState();
+
+            // Fetch user stats, achievements, and quiz history in parallel
+            await Promise.all([
+              profileStore.fetchUserStats(),
+              profileStore.fetchAchievements(),
+              profileStore.fetchQuizHistory(),
+            ]);
           }
         } catch (error) {
-          console.log(error);
           const axiosError = error as AxiosError<ApiError>;
           set({
             loading: false,
-            error: axiosError.response?.data?.message || "Failed to fetch user",
+            error:
+              axiosError.response?.data?.message || "Failed to fetch user data",
             isAuthenticated: false,
+            user: null,
           });
-          return (
-            error.response?.data || {
-              success: false,
-              message: error.message || "Failed to fetch user",
-            }
-          );
         }
       },
 
       logout: async () => {
         try {
-          const { data } = await api.post<{
-            success: boolean;
-            message: string;
-          }>(`/auth/logout`);
+          const token = get().accessToken;
+          if (!token) return;
+          const response = await api.post<APIResponse<null>>("/auth/logout");
+          const { data } = response;
+
           if (data.success) {
-            set({ user: null, accessToken: null, isAuthenticated: false });
-            return { success: true, message: data.message };
+            set({
+              user: null,
+              accessToken: null,
+              isAuthenticated: false,
+              error: null,
+            });
           }
+          return data;
         } catch (error) {
           const axiosError = error as AxiosError<ApiError>;
           set({
-            error: axiosError.response?.data?.message || "Failed to logout",
+            error: axiosError.response?.data?.message || "Logout failed",
           });
-          return error.response?.data;
+          return {
+            success: false,
+            message: axiosError.response?.data?.message || "Logout failed",
+            data: null,
+          };
         }
       },
 
-      clearError: () => {
-        set({ error: null });
-      },
+      clearError: () => set({ error: null }),
     }),
     {
       name: "auth-storage",

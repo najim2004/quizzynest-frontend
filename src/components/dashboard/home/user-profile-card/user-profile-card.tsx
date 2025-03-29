@@ -7,10 +7,11 @@ interface UserProfileCardProps {
   email: string;
   avatar: string;
   successRate?: number;
-  totalPlayedQuizess?: number;
+  totalPlayedQuizzes?: number;
   correctAnswers?: number;
   totalEarnedCoin?: number;
   highScore?: number;
+  rankThisMonth?: number;
 }
 
 const UserProfileCard: FC<UserProfileCardProps> = ({
@@ -19,9 +20,10 @@ const UserProfileCard: FC<UserProfileCardProps> = ({
   avatar,
   successRate = 0,
   highScore = 0,
-  totalPlayedQuizess = 0,
+  totalPlayedQuizzes = 0,
   correctAnswers = 0,
   totalEarnedCoin = 0,
+  rankThisMonth = 0,
 }) => {
   return (
     <div className="flex flex-col sm:flex-row gap-5 items-center bg-[#6A5AE0] text-white p-5 rounded-4xl">
@@ -29,11 +31,22 @@ const UserProfileCard: FC<UserProfileCardProps> = ({
 
       <div className="relative rounded-4xl overflow-hidden size-52 flex items-center justify-center bg-gray-50">
         <Image
-          src={avatar}
-          alt="Profile avatar"
+          src={avatar || "https://cdn-icons-png.flaticon.com/512/4537/4537019.png"} // Add a fallback image
+          alt={`${name}'s profile avatar`}
           fill
           className="object-cover object-center"
+          sizes="(max-width: 208px) 100vw, 208px" // size-52 = 208px
+          priority // Load image with priority since it's above the fold
+          onError={(e) => {
+            // Fallback to default avatar if image fails to load
+            const imgElement = e.target as HTMLImageElement;
+            imgElement.src = "/default-avatar.png";
+          }}
         />
+
+        <h3 className="absolute top-0 right-0 text-xl font-medium text-gray-800 bg-white px-3 py-1 rounded-bl-sm italic z-10">
+          #{rankThisMonth}
+        </h3>
       </div>
 
       {/* Profile Details Section */}
@@ -58,7 +71,7 @@ const UserProfileCard: FC<UserProfileCardProps> = ({
           <div className="flex items-center justify-center gap-4 border-r">
             <Puzzle className="size-10 text-gray-200" />
             <div className="">
-              <h3 className="font-medium text-4xl">{totalPlayedQuizess}</h3>
+              <h3 className="font-medium text-4xl">{totalPlayedQuizzes}</h3>
               <p className="text-gray-100 text-xs">Total Played Quizzes</p>
             </div>
           </div>

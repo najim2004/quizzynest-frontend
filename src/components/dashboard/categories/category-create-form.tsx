@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useCategoryStore } from "@/stores/categoryStore";
 
 // Define types for the form schema
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -85,6 +86,7 @@ const CreateCategoryForm: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedColor, setSelectedColor] = useState<string>(lightColors[0]);
   const [previewIcon, setPreviewIcon] = useState<string | null>(null);
+  const { createCategory } = useCategoryStore();
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
@@ -111,11 +113,21 @@ const CreateCategoryForm: React.FC = () => {
   };
 
   const onSubmit = async (values: CategoryFormValues): Promise<void> => {
-    console.log(values);
     setLoading(true);
     try {
-      // TODO: Implement API call here
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const formData = new FormData();
+      formData.append("name", values.name);
+      formData.append("description", values.description);
+      formData.append("color", values.color);
+      if (values.icon) {
+        formData.append("icon", values.icon);
+      }
+
+      const response = await createCategory(formData);
+      if (!response || !response.success) {
+        throw new Error("Failed to create category");
+      }
+
       toast.success("Category created successfully!");
       form.reset();
       setSelectedColor(lightColors[0]);
@@ -124,7 +136,9 @@ const CreateCategoryForm: React.FC = () => {
         setPreviewIcon(null);
       }
     } catch (error) {
-      toast.error("Failed to create category");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create category";
+      toast.error(errorMessage);
       console.error("Category creation error:", error);
     } finally {
       setLoading(false);
