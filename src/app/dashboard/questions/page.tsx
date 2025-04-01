@@ -13,7 +13,7 @@ import React from "react";
 
 const DashboardQuestions = () => {
   return (
-    <div className="relative h-full w-full p-0.5">
+    <div className="max-h-full overflow-y-auto w-full p-0.5">
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2 flex-1">
           <Input
