@@ -1,4 +1,4 @@
-
+"use client";
 import QuestionCreateButton from "@/components/dashboard/questions/question-create-button";
 import QuizQuestions from "@/components/dashboard/questions/questions";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,59 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React from "react";
+import { useCategoryStore } from "@/stores/categoryStore";
+import useQuizStore from "@/stores/quizStore";
+import React, { useEffect, useState, useCallback } from "react";
+import debounce from "lodash/debounce"; // lodash থেকে debounce ইমপোর্ট করা
 
 const DashboardQuestions = () => {
+  const { quizzes, getQuizzesForAdmin, loading, error, clearError } =
+    useQuizStore();
+  const { categories } = useCategoryStore();
+
+  // ফিল্টারগুলোর জন্য স্টেট
+  const [filters, setFilters] = useState({
+    search: "",
+    categoryId: undefined as number | undefined,
+    difficulty: undefined as "EASY" | "MEDIUM" | "HARD" | undefined,
+    page: 1,
+    limit: 10,
+  });
+
+  // ডিবাউন্সড ফেচ ফাংশন
+  const debouncedFetchQuizzes = useCallback(
+    debounce((newFilters) => {
+      getQuizzesForAdmin(newFilters);
+    }, 500),
+    [getQuizzesForAdmin]
+  );
+
+  // ফিল্টার পরিবর্তন হলে কুইজ ফেচ করা
+  useEffect(() => {
+    debouncedFetchQuizzes(filters);
+  }, [filters, debouncedFetchQuizzes]);
+
+  // ফিল্টার হ্যান্ডলার
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters((prev) => ({ ...prev, search: e.target.value, page: 1 }));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      categoryId: value ? parseInt(value) : undefined,
+      page: 1,
+    }));
+  };
+
+  const handleDifficultyChange = (value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      difficulty: value as "EASY" | "MEDIUM" | "HARD" | undefined,
+      page: 1,
+    }));
+  };
+
   return (
     <div className="max-h-full overflow-y-auto w-full p-0.5">
       <div className="flex items-center justify-between gap-2 mb-4">
@@ -19,37 +69,61 @@ const DashboardQuestions = () => {
           <Input
             name="search"
             type="search"
-            placeholder="Search"
+            placeholder="Search questions..."
             className="focus-visible:ring-0"
+            value={filters.search}
+            onChange={handleSearchChange}
           />
-          
-          <Select>
+
+          <Select
+            value={filters.categoryId?.toString()}
+            onValueChange={handleCategoryChange}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="math">Mathematics</SelectItem>
-              <SelectItem value="science">Science</SelectItem>
-              <SelectItem value="history">History</SelectItem>
-              <SelectItem value="geography">Geography</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
-          <Select>
+          <Select
+            value={filters.difficulty}
+            onValueChange={handleDifficultyChange}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="easy">Easy</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="hard">Hard</SelectItem>
+              <SelectItem value="EASY">Easy</SelectItem>
+              <SelectItem value="MEDIUM">Medium</SelectItem>
+              <SelectItem value="HARD">Hard</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <QuestionCreateButton />
       </div>
-      <QuizQuestions />
+
+      {/* লোডিং এবং এরর হ্যান্ডলিং */}
+      {loading && <p className="text-center">Loading quizzes...</p>}
+      {error && (
+        <div className="text-red-500 text-center">
+          {error}{" "}
+          <button onClick={clearError} className="underline">
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* কুইজ প্রদর্শন */}
+      {!loading && !error && (
+        <QuizQuestions questions={quizzes} categories={categories} />
+      )}
     </div>
   );
 };

@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage, devtools } from "zustand/middleware";
 import { AxiosError } from "axios";
-import { APIResponse } from "./authStore";
+import useAuthStore, { APIResponse } from "./authStore";
 import api from "@/components/axios/api";
 
-// Quiz-সম্পর্কিত টাইপ (quiz.service.ts এবং প্রিজমা স্কিমা থেকে)
-interface Quiz {
+// Quiz-সম্পর্কিত টাইপ
+export interface Quiz {
   id: number;
   question: string;
   timeLimit: number;
@@ -20,13 +20,15 @@ interface Quiz {
   currentQuizIndex: number; // ব্যাকএন্ড থেকে আসে
   nextQuizId: number | null; // ব্যাকএন্ড থেকে আসে
   previousQuizId: number | null; // ব্যাকএন্ড থেকে আসে
+  startTime: string; // এনক্রিপ্টেড startTime
 }
 
 interface Answer {
   id: number;
+  label: "A" | "B" | "C" | "D"; // QuizService এর সাথে মিল রাখা
   text: string;
-  isCorrect: boolean;
-  quizId: number;
+  quizId: number; // isCorrect বাদ দেওয়া হয়েছে (ক্লায়েন্টে দরকার নেই)
+  isCorrect?: boolean;
 }
 
 interface QuizSession {
@@ -69,7 +71,7 @@ interface CreateQuizInput {
   description?: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
   categoryId: number;
-  answers: { text: string; isCorrect: boolean }[];
+  answers: { label: "A" | "B" | "C" | "D"; text: string; isCorrect: boolean }[]; // ব্যাকএন্ডে পাঠানোর জন্য
 }
 
 interface UpdateQuizInput {
@@ -79,7 +81,11 @@ interface UpdateQuizInput {
   description?: string;
   difficulty?: "EASY" | "MEDIUM" | "HARD";
   categoryId?: number;
-  answers?: { text: string; isCorrect: boolean }[];
+  answers?: {
+    label: "A" | "B" | "C" | "D";
+    text: string;
+    isCorrect: boolean;
+  }[];
 }
 
 interface QuizFilterDto {
@@ -119,7 +125,8 @@ interface QuizState {
   submitAnswer: (
     sessionId: number,
     quizId: number,
-    answerId: number
+    answerId: number,
+    startTime: string
   ) => Promise<void>;
   createQuizResult: (sessionId: number) => Promise<void>;
   getQuizById: (quizId: number) => Promise<void>;
@@ -155,7 +162,7 @@ export const useQuizStore = create<QuizState>()(
         startQuizSession: async (filters: QuizFilterDto) => {
           try {
             set({ loading: true, error: null });
-            const response = await api.get("/quiz/", { params: filters });
+            const response = await api.get("/quiz/start", { params: filters });
             const { sessionId, currentQuiz, totalQuizzes } = response.data;
             const session: QuizSession = {
               id: sessionId,
@@ -307,7 +314,8 @@ export const useQuizStore = create<QuizState>()(
         submitAnswer: async (
           sessionId: number,
           quizId: number,
-          answerId: number
+          answerId: number,
+          startTime: string
         ) => {
           const { currentSession } = get();
           if (!currentSession) return;
@@ -318,6 +326,7 @@ export const useQuizStore = create<QuizState>()(
               sessionId,
               quizId,
               answerId,
+              encryptedStartTime: startTime, // startTime পাঠানো
             });
             const result: QuizAnswerResponse = response.data;
             set({
@@ -346,6 +355,7 @@ export const useQuizStore = create<QuizState>()(
 
         // ইউজার: কুইজ রেজাল্ট তৈরি
         createQuizResult: async (sessionId: number) => {
+          if (!useAuthStore.getState().user) return;
           const { currentSession } = get();
           if (!currentSession) return;
 
@@ -404,11 +414,16 @@ export const useQuizStore = create<QuizState>()(
         // অ্যাডমিন: সব কুইজ ফেচ
         getQuizzesForAdmin: async (filters: AdminQuizFilterDto) => {
           try {
+            if (
+              !useAuthStore.getState().user ||
+              useAuthStore.getState().user?.role !== "ADMIN"
+            )
+              return;
             set({ loading: true, error: null });
-            const response = await api.get("/quiz/admin", {
+            const { data } = await api.get("/quizzes/admin", {
               params: filters,
             });
-            set({ quizzes: response.data.data, loading: false });
+            set({ quizzes: data.data.data, loading: false });
           } catch (error) {
             const axiosError = error as AxiosError<ApiError>;
             set({
@@ -424,7 +439,11 @@ export const useQuizStore = create<QuizState>()(
         // অ্যাডমিন: কুইজ তৈরি
         createQuiz: async (input: CreateQuizInput) => {
           try {
-            set({ loading: true, error: null });
+            if (
+              !useAuthStore.getState().user ||
+              useAuthStore.getState().user?.role !== "ADMIN"
+            )
+              set({ loading: true, error: null });
             const { data } = await api.post<APIResponse<Quiz>>(
               "/quizzes/admin",
               input
@@ -451,7 +470,11 @@ export const useQuizStore = create<QuizState>()(
         // অ্যাডমিন: কুইজ আপডেট
         updateQuiz: async (quizId: number, input: UpdateQuizInput) => {
           try {
-            set({ loading: true, error: null });
+            if (
+              !useAuthStore.getState().user ||
+              useAuthStore.getState().user?.role !== "ADMIN"
+            )
+              set({ loading: true, error: null });
             const response = await api.put(`/quiz/admin/${quizId}`, input);
             set({
               quizzes: get().quizzes.map((q) =>
@@ -473,7 +496,11 @@ export const useQuizStore = create<QuizState>()(
         // অ্যাডমিন: কুইজ ডিলিট
         deleteQuiz: async (quizId: number) => {
           try {
-            set({ loading: true, error: null });
+            if (
+              !useAuthStore.getState().user ||
+              useAuthStore.getState().user?.role !== "ADMIN"
+            )
+              set({ loading: true, error: null });
             await api.delete(`/quiz/admin/${quizId}`);
             set({
               quizzes: get().quizzes.filter((q) => q.id !== quizId),
