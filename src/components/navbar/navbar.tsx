@@ -24,15 +24,7 @@ const NAV_LINKS = [
   { name: "Contact", href: "/contact" },
 ] as const;
 
-// Types
 type NavLink = (typeof NAV_LINKS)[number];
-
-/**
- * Navbar component for QuizzyNest application
- * Handles navigation, theme toggling, and user authentication states
- * @param {NavbarProps} props - Component props
- * @returns {JSX.Element} Navbar component
- */
 export function Navbar() {
   const { setTheme, theme } = useTheme();
   const pathname = usePathname();

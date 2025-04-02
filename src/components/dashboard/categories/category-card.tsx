@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import ActionMenu from "../action-menu/action-menu";
 import Image from "next/image";
+import Link from "next/link";
 
 interface QuizCardProps {
   id: number;
@@ -79,7 +80,7 @@ export const QuizCard = ({
       {!isAdmin && (
         <CardFooter>
           <Button className="w-full bg-white/50 hover:bg-white/70 text-gray-500">
-            Start Quiz
+            <Link href={`/dashboard/quiz/${id}`}>Start Quiz</Link>
           </Button>
         </CardFooter>
       )}
