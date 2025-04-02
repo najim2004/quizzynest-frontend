@@ -20,6 +20,7 @@ import { FaFacebook } from "react-icons/fa";
 import { Brain } from "lucide-react";
 import useAuthStore from "@/stores/authStore";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -31,13 +32,14 @@ export default function Login() {
     resolver: zodResolver(formSchema),
     defaultValues: { email: "", password: "" },
   });
+  const router = useRouter();
   const { login } = useAuthStore();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     try {
       const result = await login(values.email, values.password);
       if (result?.success) {
         toast.success(result?.message || "Login successful");
+        router.push("/dashboard");
       } else {
         toast.error(result?.message || "Login failed");
       }

@@ -184,7 +184,7 @@ function UserDropdown() {
           className="relative h-8 w-8 rounded-full ring-2 ring-gray-400 dark:ring-gray-700 hover:ring-gray-600 dark:hover:ring-gray-500"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.profile?.profilePic} alt={`${user?.fullName}'s avatar`} />
+            <AvatarImage src={user?.profile?.profilePic||"https://img.icons8.com/officel/100/user.png"} alt={`${user?.fullName}'s avatar`} />
             <AvatarFallback className="dark:bg-gray-800 dark:text-gray-200">
               {user?.fullName?.charAt(0)?.toUpperCase() || 'UN'}
             </AvatarFallback>

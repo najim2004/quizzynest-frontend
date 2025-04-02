@@ -13,10 +13,17 @@ import { useCategoryStore } from "@/stores/categoryStore";
 import useQuizStore from "@/stores/quizStore";
 import React, { useEffect, useState, useCallback } from "react";
 import debounce from "lodash/debounce"; // lodash থেকে debounce ইমপোর্ট করা
+import { toast } from "sonner";
 
 const DashboardQuestions = () => {
-  const { quizzes, getQuizzesForAdmin, loading, error, clearError } =
-    useQuizStore();
+  const {
+    quizzes,
+    getQuizzesForAdmin,
+    loading,
+    error,
+    clearError,
+    deleteQuiz,
+  } = useQuizStore();
   const { categories } = useCategoryStore();
 
   // ফিল্টারগুলোর জন্য স্টেট
@@ -62,6 +69,26 @@ const DashboardQuestions = () => {
     }));
   };
 
+  const onDelete = async (id: number) => {
+    try {
+      const response = await deleteQuiz(id);
+      if (response?.success)
+        throw new Error(response.message || "Failed to delete this question");
+      toast.success(response.message || "Question deleted successfully");
+    } catch (error) {
+      console.log("[Question Error]", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete this question"
+      );
+    }
+  };
+
+  const onEdit = (id: number) => {
+    // Handle edit logic here
+  };
+
   return (
     <div className="max-h-full overflow-y-auto w-full p-0.5">
       <div className="flex items-center justify-between gap-2 mb-4">
@@ -99,6 +126,7 @@ const DashboardQuestions = () => {
               <SelectValue placeholder="Select Difficulty" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={" "}>All</SelectItem>
               <SelectItem value="EASY">Easy</SelectItem>
               <SelectItem value="MEDIUM">Medium</SelectItem>
               <SelectItem value="HARD">Hard</SelectItem>
@@ -122,7 +150,12 @@ const DashboardQuestions = () => {
 
       {/* কুইজ প্রদর্শন */}
       {!loading && !error && (
-        <QuizQuestions questions={quizzes} categories={categories} />
+        <QuizQuestions
+          questions={quizzes}
+          categories={categories}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
       )}
     </div>
   );

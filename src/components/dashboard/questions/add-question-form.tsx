@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import useQuizStore from "@/stores/quizStore";
 import { toast } from "sonner";
+import { useCategoryStore } from "@/stores/categoryStore";
 
 // Schema আপডেট
 const formSchema = z.object({
@@ -63,6 +64,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function AddQuestionForm() {
   const { createQuiz } = useQuizStore();
+  const { categories } = useCategoryStore();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -82,8 +84,6 @@ export function AddQuestionForm() {
   });
 
   async function onSubmit(values: FormValues) {
-    console.log(values);
-    // form.reset();
     try {
       const response = await createQuiz({
         question: values.question,
@@ -94,13 +94,12 @@ export function AddQuestionForm() {
         categoryId: 1,
         answers: values.answers,
       });
-      console.log(response);
       if (!response || !response.success) {
         throw new Error("Failed to create question");
       }
 
       toast.success("Question created successfully!");
-      // form.reset();
+      form.reset();
     } catch (error) {
       toast.error("Failed to create question");
       console.error(error);
@@ -261,11 +260,14 @@ export function AddQuestionForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="1">Geography</SelectItem>
-                          <SelectItem value="2">Science</SelectItem>
-                          <SelectItem value="3">History</SelectItem>
-                          <SelectItem value="4">Sports</SelectItem>
-                          <SelectItem value="5">Entertainment</SelectItem>
+                          {categories?.map((category) => (
+                            <SelectItem
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />

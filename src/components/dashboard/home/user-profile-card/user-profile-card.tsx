@@ -31,7 +31,7 @@ const UserProfileCard: FC<UserProfileCardProps> = ({
 
       <div className="relative rounded-4xl overflow-hidden size-52 flex items-center justify-center bg-gray-50">
         <Image
-          src={avatar || "https://cdn-icons-png.flaticon.com/512/4537/4537019.png"} // Add a fallback image
+          src={avatar || "https://img.icons8.com/officel/208/user.png"} // Add a fallback image
           alt={`${name}'s profile avatar`}
           fill
           className="object-cover object-center"

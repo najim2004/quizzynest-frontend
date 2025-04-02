@@ -135,7 +135,9 @@ interface QuizState {
   getQuizzesForAdmin: (filters: AdminQuizFilterDto) => Promise<void>;
   createQuiz: (input: CreateQuizInput) => Promise<APIResponse<Quiz>>;
   updateQuiz: (quizId: number, input: UpdateQuizInput) => Promise<void>;
-  deleteQuiz: (quizId: number) => Promise<void>;
+  deleteQuiz: (
+    quizId: number
+  ) => Promise<{ success: boolean; message: string }>;
 
   // ইউটিলিটি
   resetQuiz: () => void;
@@ -162,7 +164,9 @@ export const useQuizStore = create<QuizState>()(
         startQuizSession: async (filters: QuizFilterDto) => {
           try {
             set({ loading: true, error: null });
-            const response = await api.get("/quiz/start", { params: filters });
+            const response = await api.get("/quizzes/start", {
+              params: filters,
+            });
             const { sessionId, currentQuiz, totalQuizzes } = response.data;
             const session: QuizSession = {
               id: sessionId,
@@ -194,7 +198,7 @@ export const useQuizStore = create<QuizState>()(
 
         // ইউজার: পরবর্তী কুইজ ফেচ
         getNextQuiz: async (sessionId: number, nextQuizId: number | null) => {
-          const { currentSession, currentQuiz } = get();
+          const { currentSession } = get();
           if (
             !currentSession ||
             currentSession.answeredCount >= currentSession.totalQuestions ||
@@ -221,8 +225,8 @@ export const useQuizStore = create<QuizState>()(
           // API থেকে ফেচ করা
           try {
             set({ loading: true, error: null });
-            const response = await api.get("/quiz/next", {
-              params: { sessionId, currentQuizId: currentQuiz?.id },
+            const response = await api.get("/quizzes/next", {
+              params: { sessionId, nextQuizId },
             });
             const { currentQuiz: fetchedQuiz } = response.data || {};
             if (!fetchedQuiz) {
@@ -282,7 +286,9 @@ export const useQuizStore = create<QuizState>()(
           // API থেকে ফেচ করা
           try {
             set({ loading: true, error: null });
-            const response = await api.get(`/quiz/${previousQuizId}`);
+            const response = await api.get("/quizzes/next", {
+              params: { sessionId, nextQuizId: previousQuizId },
+            });
             const fetchedQuiz = response.data;
             set({
               currentQuiz: fetchedQuiz,
@@ -322,7 +328,7 @@ export const useQuizStore = create<QuizState>()(
 
           try {
             set({ loading: true, error: null });
-            const response = await api.post("/quiz/submit", {
+            const response = await api.post("/quizzes/submit", {
               sessionId,
               quizId,
               answerId,
@@ -361,7 +367,7 @@ export const useQuizStore = create<QuizState>()(
 
           try {
             set({ loading: true, error: null });
-            const response = await api.post("/quiz/create-quiz-result", {
+            const response = await api.post("/quizzes/create-quiz-result", {
               sessionId,
             });
             set({
@@ -443,7 +449,9 @@ export const useQuizStore = create<QuizState>()(
               !useAuthStore.getState().user ||
               useAuthStore.getState().user?.role !== "ADMIN"
             )
-              set({ loading: true, error: null });
+              throw new Error("Unauthorized");
+
+            set({ loading: true, error: null });
             const { data } = await api.post<APIResponse<Quiz>>(
               "/quizzes/admin",
               input
@@ -452,7 +460,7 @@ export const useQuizStore = create<QuizState>()(
               throw new Error(data.message || "Failed to create quiz");
 
             set({
-              quizzes: [...get().quizzes, data.data],
+              quizzes: [data.data, ...get().quizzes],
               loading: false,
             });
             return data;
@@ -474,8 +482,9 @@ export const useQuizStore = create<QuizState>()(
               !useAuthStore.getState().user ||
               useAuthStore.getState().user?.role !== "ADMIN"
             )
-              set({ loading: true, error: null });
-            const response = await api.put(`/quiz/admin/${quizId}`, input);
+              throw new Error("Unauthorized");
+            set({ loading: true, error: null });
+            const response = await api.put(`/quizzes/admin/${quizId}`, input);
             set({
               quizzes: get().quizzes.map((q) =>
                 q.id === quizId ? response.data : q
@@ -500,12 +509,16 @@ export const useQuizStore = create<QuizState>()(
               !useAuthStore.getState().user ||
               useAuthStore.getState().user?.role !== "ADMIN"
             )
-              set({ loading: true, error: null });
-            await api.delete(`/quiz/admin/${quizId}`);
+              throw new Error("Unauthorized");
+            set({ loading: true, error: null });
+            const { data } = await api.delete(`/quizzes/admin/${quizId}`);
+            if (!data.success)
+              throw new Error(data.message || "Failed to delete quiz");
             set({
               quizzes: get().quizzes.filter((q) => q.id !== quizId),
               loading: false,
             });
+            return { success: true, message: data.message };
           } catch (error) {
             const axiosError = error as AxiosError<ApiError>;
             set({
@@ -513,7 +526,14 @@ export const useQuizStore = create<QuizState>()(
               error:
                 axiosError.response?.data?.message || "Failed to delete quiz",
             });
-            throw error;
+            throw {
+              success: false,
+              message:
+                axiosError.response?.data?.message ||
+                (error instanceof Error
+                  ? error.message
+                  : "Failed to delete quiz"),
+            };
           }
         },
 

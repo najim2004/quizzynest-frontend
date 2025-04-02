@@ -17,8 +17,8 @@ interface QuizCardProps {
   title: string;
   description: string;
   isAdmin: boolean;
-  onDelete: (id: number) => void;
-  onEdit: (id: number) => void;
+  onDelete?: (id: number) => void;
+  onEdit?: (id: number) => void;
 }
 
 export const QuizCard = ({

@@ -9,36 +9,14 @@ import { Category } from "@/stores/categoryStore";
 export default function QuizQuestions({
   questions,
   categories,
+  onDelete,
+  onEdit,
 }: {
   questions: Quiz[];
   categories: Category[];
+  onDelete: (id: number) => void;
+  onEdit: (id: number) => void;
 }) {
-  // const [questions] = useState<QuizQuestion[]>([
-  //   {
-  //     id: 1,
-  //     text: "What is the capital of France?",
-  //     category: "Geography",
-  //     difficulty: "Easy",
-  //     options: [
-  //       { id: 1, label: "A", text: "Paris", isCorrect: true },
-  //       { id: 2, label: "B", text: "Berlin", isCorrect: false },
-  //       { id: 3, label: "C", text: "London", isCorrect: false },
-  //       { id: 4, label: "D", text: "Madrid", isCorrect: false },
-  //     ],
-  //   },
-  //   {
-  //     id: 2,
-  //     text: "What is the largest planet in our solar system?",
-  //     category: "Science",
-  //     difficulty: "Medium",
-  //     options: [
-  //       { id: 1, label: "A", text: "Jupiter", isCorrect: true },
-  //       { id: 2, label: "B", text: "Mars", isCorrect: false },
-  //       { id: 3, label: "C", text: "Saturn", isCorrect: false },
-  //       { id: 4, label: "D", text: "Neptune", isCorrect: false },
-  //     ],
-  //   },
-  // ]);
   return (
     <div className="grid grid-cols-1 gap-4">
       {questions.map((question) => (
@@ -52,7 +30,10 @@ export default function QuizQuestions({
                   {question.question}
                 </h3>
                 <div className="flex items-center space-x-2">
-                  <ActionMenu onDelete={() => {}} onEdit={() => {}} />
+                  <ActionMenu
+                    onDelete={() => onDelete(question.id)}
+                    onEdit={() => onEdit(question.id)}
+                  />
                 </div>
               </div>
 
