@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import { MoreVertical } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,13 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-const ActionMenu = () => {
+
+interface ActionMenuProps {
+  onDelete: () => void;
+  onEdit: () => void;
+}
+
+const ActionMenu: FC<ActionMenuProps> = ({ onDelete, onEdit }) => {
   const [open, setOpen] = useState(false);
   return (
     <div>
@@ -31,9 +37,9 @@ const ActionMenu = () => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">
+            <DropdownMenuItem onClick={onDelete} className="text-red-600">
               Delete
               <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
             </DropdownMenuItem>

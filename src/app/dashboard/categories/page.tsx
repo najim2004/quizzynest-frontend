@@ -1,22 +1,90 @@
+"use client";
 import QuizCategories from "@/components/dashboard/categories/categories";
 import CategoryCreateButton from "@/components/dashboard/categories/category-create-button";
 import { Input } from "@/components/ui/input";
-import React from "react";
+import { useCategoryStore } from "@/stores/categoryStore";
+import React, { useEffect, useState, useCallback } from "react";
+import debounce from "lodash/debounce"; // lodash থেকে debounce ইমপোর্ট
+import { toast } from "sonner";
 
 const CategoriesPage = () => {
+  const { categories, fetchCategories, loading, error, deleteCategory } =
+    useCategoryStore();
+
+  // ফিল্টারের জন্য স্টেট
+  const [filters, setFilters] = useState({
+    search: "",
+    page: 1,
+    limit: 10,
+  });
+
+  // ডিবাউন্সড ফেচ ফাংশন
+  const debouncedFetchCategories = useCallback(
+    debounce((newFilters) => {
+      fetchCategories();
+    }, 500),
+    [fetchCategories]
+  );
+
+  // ফিল্টার পরিবর্তন হলে ক্যাটাগরি ফেচ করা
+  useEffect(() => {
+    debouncedFetchCategories(filters);
+  }, [filters, debouncedFetchCategories]);
+
+  // Search হ্যান্ডলার
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters((prev) => ({ ...prev, search: e.target.value, page: 1 }));
+  };
+  const onDelete = async (id: number) => {
+    try {
+      const response = await deleteCategory(id);
+      if (response?.success)
+        throw new Error(response.message || "Faild to delete category");
+      toast.success(response.message || "Category deleted successfully");
+    } catch (error) {
+      console.log("[Category Error]", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete category"
+      );
+    }
+  };
+  const onEdit = (id: number) => {
+    console.log(id);
+  };
   return (
     <div className="relative h-full w-full p-0.5">
       <div className="flex items-center justify-between mb-4">
         <Input
           name="search"
           type="search"
-          placeholder="Search"
+          placeholder="Search categories..."
           className="mr-2 w-min focus-visible:ring-0"
+          value={filters.search}
+          onChange={handleSearchChange}
         />
 
-        <CategoryCreateButton/>
+        <CategoryCreateButton />
       </div>
-      <QuizCategories />
+
+      {/* লোডিং এবং এরর হ্যান্ডলিং */}
+      {loading && <p className="text-center">Loading categories...</p>}
+      {error && (
+        <div className="text-red-500 text-center">
+          {error}{" "}
+          <button onClick={clearError} className="underline">
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* ক্যাটাগরি প্রদর্শন */}
+      {!loading && !error && (
+        <QuizCategories
+          categories={categories}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+      )}
     </div>
   );
 };

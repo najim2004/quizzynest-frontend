@@ -7,40 +7,69 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ActionMenu from "../action-menu/action-menu";
+import Image from "next/image";
 
 interface QuizCardProps {
-  icon: React.ReactNode;
-  iconBgColor: string;
+  id: number;
+  imageUrl: string;
+  bgColor: string;
   questionCount: number;
   title: string;
   description: string;
-  gradientBg: string;
   isAdmin: boolean;
+  onDelete: (id: number) => void;
+  onEdit: (id: number) => void;
 }
 
 export const QuizCard = ({
-  icon,
-  iconBgColor,
+  id,
+  imageUrl,
+  bgColor,
   questionCount,
   title,
   description,
-  gradientBg,
+  onDelete,
+  onEdit,
   isAdmin = false,
 }: QuizCardProps) => {
+  const cardStyle = {
+    background: `linear-gradient(to bottom right, ${bgColor}40, ${bgColor}70)`,
+    border: "none",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+  };
+
+  const imageBgStyle = {
+    backgroundColor: `${bgColor}70`,
+  };
+
   return (
-    <Card
-      className={`bg-gradient-to-br ${gradientBg} border-none shadow-sm gap-2`}
-    >
+    <Card className="gap-2" style={cardStyle}>
       <CardHeader className="py-0">
         <div className="flex justify-between items-center">
           <div className="flex-1 flex justify-between items-center">
-            <div className={`bg-${iconBgColor} p-3 rounded-md`}>{icon}</div>
+            <div
+              className="p-3 rounded-md flex items-center justify-center w-12 h-12"
+              style={imageBgStyle}
+            >
+              <Image
+                src={imageUrl}
+                alt={`${title} image`}
+                width={20}
+                height={20}
+                className="object-cover rounded"
+              />
+            </div>
 
             <span className="text-sm text-gray-500">
               {questionCount} questions
             </span>
           </div>
-          {isAdmin && <ActionMenu />}
+          {isAdmin && (
+            <ActionMenu
+              onDelete={() => onDelete(id)}
+              onEdit={() => onEdit(id)}
+            />
+          )}
         </div>
       </CardHeader>
       <CardContent>

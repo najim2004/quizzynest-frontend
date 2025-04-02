@@ -1,6 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import useAuthStore from "@/stores/authStore";
-import { useRouter } from "next/navigation";
 
 const api = axios.create({
   baseURL: "/api",
@@ -34,7 +33,7 @@ api.interceptors.response.use(
           isAuthenticated: false,
           accessToken: null,
         });
-        useRouter().push("/login");
+        window.location.replace("/login");
       }
     }
     return Promise.reject(error);

@@ -1,6 +1,6 @@
 import api from "@/components/axios/api";
 import { create } from "zustand";
-import { APIResponse } from "./authStore";
+import useAuthStore, { APIResponse } from "./authStore";
 
 interface ApiError {
   response?: {
@@ -34,7 +34,9 @@ interface CategoryStore {
   fetchCategories: () => Promise<void>;
   createCategory: (formData: FormData) => Promise<APIResponse<Category>>;
   updateCategory: (id: number, formData: FormData) => Promise<Category>;
-  deleteCategory: (id: number) => Promise<void>;
+  deleteCategory: (
+    id: number
+  ) => Promise<{ success: boolean; message: string }>;
   getCategoryById: (id: number) => Promise<Category>;
 }
 
@@ -60,7 +62,11 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
 
   createCategory: async (formData: FormData) => {
     try {
-      set({ loading: true });
+      if (
+        !useAuthStore.getState().user ||
+        useAuthStore.getState().user?.role !== "ADMIN"
+      )
+        set({ loading: true });
       const response = await api.post<APIResponse<Category>>(
         "/categories",
         formData,
@@ -87,7 +93,11 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
 
   updateCategory: async (id: number, formData: FormData) => {
     try {
-      set({ loading: true });
+      if (
+        !useAuthStore.getState().user ||
+        useAuthStore.getState().user?.role !== "ADMIN"
+      )
+        set({ loading: true });
       const response = await api.put<APIResponse<Category>>(
         `/categories/${id}`,
         formData,
@@ -116,18 +126,32 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
 
   deleteCategory: async (id: number) => {
     try {
-      set({ loading: true });
-      await api.delete(`/categories/${id}`);
+      if (
+        !useAuthStore.getState().user ||
+        useAuthStore.getState().user?.role !== "ADMIN"
+      )
+        set({ loading: true });
+      const { data } = await api.delete(`/categories/${id}`);
+      if (!data.success)
+        throw new Error(data.message || "Failed to delete category");
       set((state) => ({
         categories: state.categories.filter((cat) => cat.id !== id),
         error: null,
       }));
+      return { success: data.success, message: data.message };
     } catch (error) {
       const apiError = error as ApiError;
       set({
         error: apiError.response?.data?.message || "Failed to delete category",
       });
-      throw error;
+      throw {
+        success: false,
+        message:
+          apiError.response?.data?.message ||
+          (error instanceof Error
+            ? error.message
+            : "Failed to delete category"),
+      };
     } finally {
       set({ loading: false });
     }

@@ -52,7 +52,7 @@ export default function QuizQuestions({
                   {question.question}
                 </h3>
                 <div className="flex items-center space-x-2">
-                  <ActionMenu />
+                  <ActionMenu onDelete={() => {}} onEdit={() => {}} />
                 </div>
               </div>
 
