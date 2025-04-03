@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Circle } from "lucide-react";
+import { X, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,116 +10,122 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
+import { useRouter } from "next/navigation";
 
-type Option = {
+interface QuizOption {
   id: string;
   label: string;
-  value: string;
-  percentage: string;
-  isPositive: boolean;
-};
+}
 
 export default function QuizBoard() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const router = useRouter();
 
   const quizData = {
-    id: 156,
-    question: "PREDICT THE TOP LOSER (for tomorrow) across these indices",
+    id: 1,
+    question: "What is the capital of Bangladesh?",
     options: [
-      {
-        id: "A",
-        label: "NIFTY50",
-        value: "₹17,356",
-        percentage: "-0.31%",
-        isPositive: false,
-      },
-      {
-        id: "B",
-        label: "NIFTYNEXT50",
-        value: "₹56,226",
-        percentage: "-0.31%",
-        isPositive: false,
-      },
-      {
-        id: "C",
-        label: "NIFTYBANK",
-        value: "₹17,356",
-        percentage: "+2.12%",
-        isPositive: true,
-      },
+      { id: "A", label: "Dhaka" },
+      { id: "B", label: "Chittagong" },
+      { id: "C", label: "Sylhet" },
+      { id: "D", label: "Rajshahi" },
     ],
     currentStep: 1,
-    totalSteps: 5,
-    points: 200,
+    totalSteps: 10,
+    timeLimit: 30,
+    points: 100,
   };
 
   const handleOptionSelect = (optionId: string) => {
     setSelectedOption(optionId);
   };
 
+  const handleContinue = () => {
+    if (!selectedOption) return;
+    // Handle submission logic here
+  };
+
+  const handleClose = () => {
+    if (confirm("Are you sure you want to close the quiz?")) {
+      router.back();
+    }
+  };
+
   return (
-    <Card className="w-full h-full bg-neutral-50 flex justify-center items-center rounded-none shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between p-4 pb-0">
-        <div className="flex items-center">
-          <Circle className="h-5 w-5 fill-blue-600 text-white mr-1" />
-          <span className="text-sm font-medium">{quizData.points}</span>
-        </div>
-        <div className="text-center font-medium">
-          Fantasy Quiz #{quizData.id}
-        </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <X className="h-4 w-4" />
-        </Button>
-      </CardHeader>
-
-      <CardContent className="p-6 pt-10">
-        <div className="text-center mb-8">
-          <h2 className="text-lg font-bold text-blue-900 uppercase">
-            {quizData.question}
-          </h2>
-        </div>
-
-        <div className="space-y-3">
-          {quizData.options.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => handleOptionSelect(option.id)}
-              className={cn(
-                "w-full flex items-center justify-between p-4 bg-white rounded-md border border-neutral-200 hover:border-neutral-300 transition-colors",
-                selectedOption === option.id && "border-blue-500"
-              )}
+    <div className="fixed inset-0 bg-gray-50">
+      <Card className="container max-w-4xl mx-auto h-full flex flex-col border-none rounded-none shadow-none bg-transparent pt-0">
+        <CardHeader className="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] p-6 pb-0 rounded-b-[60px]">
+          <div className="flex items-center justify-between text-white mb-8">
+            <span className="font-medium">Points: {quizData.points}</span>
+            <h1 className="text-lg font-medium">Quiz</h1>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="text-white hover:bg-transparent hover:text-white"
             >
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">{option.id}</span>
-                <span className="text-sm font-medium">{option.label}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">{option.value}</span>
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
+          <div className="text-center mb-12 text-white">
+            <div className="mx-auto mb-6 size-24 border-4 rounded-full flex items-center justify-center">
+              <Timer className="h-8 w-8" />
+            </div>
+            <h2 className="text-xl font-medium px-8">{quizData.question}</h2>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-6 flex-grow flex items-center">
+          <div className="w-full max-w-2xl mx-auto space-y-4">
+            {quizData.options.map((option) => (
+              <Button
+                key={option.id}
+                variant="outline"
+                onClick={() => handleOptionSelect(option.id)}
+                className={cn(
+                  "w-full h-14 flex items-center justify-start px-4 bg-white hover:bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] group",
+                  selectedOption === option.id &&
+                    "bg-gradient-to-r from-[#6C5CE7] to-[#4834D4]"
+                )}
+              >
+                <span className="text-sm font-medium bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center mr-4">
+                  {option.id}
+                </span>
                 <span
                   className={cn(
-                    "text-sm font-medium",
-                    option.isPositive ? "text-green-500" : "text-red-500"
+                    "text-sm font-medium group-hover:text-white",
+                    selectedOption === option.id && "text-white"
                   )}
                 >
-                  {option.percentage}
+                  {option.label}
                 </span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </CardContent>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
 
-      <CardFooter className="p-4 pt-8 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="h-1.5 w-8 bg-green-400 rounded-full"></div>
-          <span className="text-xs text-neutral-500">
-            {quizData.currentStep}/{quizData.totalSteps}
-          </span>
-        </div>
-        <Button className="bg-neutral-300 hover:bg-neutral-400 text-neutral-700 rounded-md px-6">
-          CONTINUE
-        </Button>
-      </CardFooter>
-    </Card>
+        <CardFooter className="p-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Progress
+              indicatorClassName="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4]"
+              value={(quizData.currentStep / quizData.totalSteps) * 100}
+              className="h-2 w-32"
+            />
+            <span className="text-sm text-neutral-600">
+              {quizData.currentStep}/{quizData.totalSteps}
+            </span>
+          </div>
+          <Button
+            onClick={handleContinue}
+            disabled={!selectedOption}
+            className="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] text-white px-8"
+          >
+            Continue
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

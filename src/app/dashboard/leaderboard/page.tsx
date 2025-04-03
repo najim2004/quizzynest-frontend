@@ -110,13 +110,13 @@ export default function LeaderboardUI() {
   const restOfList = leaderboardData.slice(3);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="">
       {/* Top 3 Section */}
-      <div className="bg-[#6A5AE0] rounded-lg mb-4 relative overflow-hidden pt-8">
+      <div className="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] rounded-2xl mb-4 relative overflow-hidden pt-8">
         <div className="relative">
           <div className="flex items-end justify-center">
             {/* Second Place */}
-            <div className="flex flex-col items-center -mb-10">
+            <div className="flex flex-col items-center -mb-10 z-10">
               <Avatar className="w-16 h-16 border-2 border-white">
                 <AvatarImage
                   className="object-cover"
@@ -126,7 +126,7 @@ export default function LeaderboardUI() {
                 <AvatarFallback>{topThree[1].name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="text-xs text-white/80">{topThree[1].phone}</div>
-              <Card className="bg-red-300 py-2 border-0 w-24 mt-2 h-[170px] rounded-l-md rounded-r-none">
+              <Card className="bg-red-300 py-2 border-0 w-24 mt-2 h-[170px] rounded-l-md rounded-r-none  -rotate-6 -mr-2.5">
                 <CardContent className="p-0 flex flex-col items-center justify-start">
                   <h2 className="text-2xl font-bold text-white">2nd</h2>
                   <div className="text-xs text-white">Score:</div>
@@ -138,7 +138,7 @@ export default function LeaderboardUI() {
             </div>
 
             {/* First Place - Center */}
-            <div className="flex flex-col items-center -mb-10">
+            <div className="flex flex-col items-center -mb-10 z-20">
               <Avatar className="w-20 h-20 border-2 border-white">
                 <AvatarImage
                   className="object-cover"
@@ -147,7 +147,7 @@ export default function LeaderboardUI() {
                 />
                 <AvatarFallback>{topThree[0].name.charAt(0)}</AvatarFallback>
               </Avatar>
-              <Crown className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-yellow-400 w-6 h-6" />
+              <Crown className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-yellow-400 w-6 h-6 shadow-2xl" />
               <div className="text-xs text-white/80">{topThree[0].phone}</div>
               <Card className="bg-red-400 py-4 border-0 w-28 mt-2 h-[200px] rounded-md">
                 <CardContent className="p-0 flex flex-col items-center justify-start">
@@ -161,7 +161,7 @@ export default function LeaderboardUI() {
             </div>
 
             {/* Third Place */}
-            <div className="flex flex-col items-center -mb-10">
+            <div className="flex flex-col items-center -mb-10 z-10">
               <Avatar className="w-16 h-16 border-2 border-white">
                 <AvatarImage
                   className="object-cover"
@@ -171,7 +171,7 @@ export default function LeaderboardUI() {
                 <AvatarFallback>{topThree[2].name.charAt(0)}</AvatarFallback>
               </Avatar>
               <div className="text-xs text-white/80">{topThree[2].phone}</div>
-              <Card className="bg-red-300 py-1 border-0 w-24 mt-2 h-[130px] rounded-r-md rounded-l-none">
+              <Card className="bg-red-300 py-1 border-0 w-24 mt-2 h-[130px] rounded-r-md rounded-l-none  rotate-6 -ml-2.5">
                 <CardContent className="p-0 flex flex-col items-center justify-start">
                   <h2 className="text-2xl font-bold text-white">3rd</h2>
                   <div className="text-xs text-white">Score:</div>
@@ -184,24 +184,26 @@ export default function LeaderboardUI() {
           </div>
         </div>
       </div>
-
-      {/* Leaderboard Table */}
-      <div className="rounded-lg overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-          {restOfList.map((entry) => (
-            <LeaderboardCard key={entry.id} entry={entry} />
-          ))}
+      <div className="max-w-3xl mx-auto">
+        {/* Leaderboard Table */}
+        <div className="rounded-lg overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+            {restOfList.map((entry) => (
+              <LeaderboardCard key={entry.id} entry={entry} />
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="flex justify-center items-center mt-4 *:max-w-1/2">
-        <LeaderboardCard
-          entry={{
-            name: "Najim(You)",
-            avatar: "https://ik.imagekit.io/golcqzkpl/1734767925484-7x84ch_4esE9FmK3?updatedAt=1734767928633",
-            score: 300,
-            position: 12,
-          }}
-        />
+        <div className="flex justify-center items-center mt-4 *:max-w-1/2 ">
+          <LeaderboardCard
+            entry={{
+              name: "Najim(You)",
+              avatar:
+                "https://ik.imagekit.io/golcqzkpl/1734767925484-7x84ch_4esE9FmK3?updatedAt=1734767928633",
+              score: 300,
+              position: 12,
+            }}
+          />
+        </div>
       </div>
     </div>
   );

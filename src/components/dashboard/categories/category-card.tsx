@@ -80,7 +80,7 @@ export const QuizCard = ({
       {!isAdmin && (
         <CardFooter>
           <Button className="w-full bg-white/50 hover:bg-white/70 text-gray-500">
-            <Link href={`/dashboard/quiz/${id}`}>Start Quiz</Link>
+            <Link href={`/dashboard/quiz/${id}`} className="w-full">Start Quiz</Link>
           </Button>
         </CardFooter>
       )}
