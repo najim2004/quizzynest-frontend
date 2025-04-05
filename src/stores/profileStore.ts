@@ -1,6 +1,7 @@
 import api from "@/components/axios/api";
 import { create } from "zustand";
 import { APIResponse } from "./authStore";
+import { Category } from "./categoryStore";
 interface stats {
   totalPlayedQuizzes: number;
   totalEarnedCoin: number;
@@ -35,9 +36,10 @@ interface errors {
   achievements: string | null;
   quizHistory: string | null;
 }
+
 export interface QuizHistoryResult {
   id: number;
-  categoryName: string;
+  category: Pick<Category, "id" | "name" | "icon" | "color">;
   totalQuestions: number;
   correctAnswers: number;
   totalTimeSpent: number;

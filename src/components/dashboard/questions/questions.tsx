@@ -19,14 +19,14 @@ export default function QuizQuestions({
 }) {
   return (
     <div className="grid grid-cols-1 gap-4">
-      {questions.map((question) => (
+      {questions.map((question, index) => (
         <Card key={question.id} className="w-full">
           <CardContent>
             <div className="space-y-4">
               {/* Question Header */}
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-medium">
-                  <span>Question {question.id}: </span>
+                  <span>SN  . {index + 1}:- </span>
                   {question.question}
                 </h3>
                 <div className="flex items-center space-x-2">

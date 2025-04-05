@@ -3,81 +3,69 @@ import { persist, createJSONStorage, devtools } from "zustand/middleware";
 import { AxiosError } from "axios";
 import useAuthStore, { APIResponse } from "./authStore";
 import api from "@/components/axios/api";
+import { useCategoryStore } from "./categoryStore";
+import useProfileStore from "./profileStore";
 
-// Quiz-সম্পর্কিত টাইপ
-export interface Quiz {
+// ফ্রন্টএন্ডের জন্য টাইপ ডিফিনিশন
+export interface ClientQuiz {
   id: number;
   question: string;
-  timeLimit: number;
-  maxPrice: number;
+  timeLimit?: number; // অপশনাল
+  maxPrize?: number; // অপশনাল
   description?: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
   categoryId: number;
-  createdBy: number;
-  createdAt: Date;
-  updatedAt: Date;
-  answers: Answer[];
-  currentQuizIndex: number; // ব্যাকএন্ড থেকে আসে
-  nextQuizId: number | null; // ব্যাকএন্ড থেকে আসে
-  previousQuizId: number | null; // ব্যাকএন্ড থেকে আসে
-  startTime: string; // এনক্রিপ্টেড startTime
+  answers: {
+    id: number;
+    label: "A" | "B" | "C" | "D";
+    text: string;
+    isCorrect?: boolean;
+  }[];
+  currentQuizIndex: number;
+  startTime: string; // এনক্রিপ্টেড
 }
 
-interface Answer {
-  id: number;
-  label: "A" | "B" | "C" | "D"; // QuizService এর সাথে মিল রাখা
-  text: string;
-  quizId: number; // isCorrect বাদ দেওয়া হয়েছে (ক্লায়েন্টে দরকার নেই)
-  isCorrect?: boolean;
-}
-
-interface QuizSession {
-  id: number;
-  userId: number;
-  selectedQuizzes: Quiz[]; // ফেচ করা কুইজগুলোর ক্যাশ
-  startedAt: Date;
-  completedAt?: Date;
-  status: "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
-  totalQuestions: number;
-  answeredCount: number;
-}
-
-interface QuizResult {
-  id: number;
-  userId: number;
-  totalQuestions: number;
-  correctAnswers: number;
-  totalTimeSpent: number;
-  totalCoinsEarned: number;
-  accuracy: number;
-  completedAt: Date;
-}
-
-interface QuizAnswerResponse {
+export interface QuizAnswerResponse {
   correct: boolean;
   earnedCoins: number;
   timeTaken: number;
 }
 
-interface ApiError {
-  message: string;
-  statusCode: number;
+export interface SubmitQuizAnswerResponse {
+  answerResponse: QuizAnswerResponse;
+  nextQuiz: ClientQuiz | null;
+  result?: QuizResult;
 }
 
-interface CreateQuizInput {
+export interface QuizFilterDto {
+  limit?: number;
+  difficulty?: "EASY" | "MEDIUM" | "HARD";
+  categoryId?: number;
+}
+
+export interface AdminQuizFilterDto {
+  page?: number;
+  limit?: number;
+  difficulty?: "EASY" | "MEDIUM" | "HARD";
+  categoryId?: number;
+  search?: string;
+  createdBy?: number;
+}
+
+export interface CreateQuizDto {
   question: string;
-  timeLimit: number;
-  maxPrize: number;
+  timeLimit?: number;
+  maxPrize?: number;
   description?: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
   categoryId: number;
-  answers: { label: "A" | "B" | "C" | "D"; text: string; isCorrect: boolean }[]; // ব্যাকএন্ডে পাঠানোর জন্য
+  answers: { label: "A" | "B" | "C" | "D"; text: string; isCorrect: boolean }[];
 }
 
-interface UpdateQuizInput {
+export interface UpdateQuizDto {
   question?: string;
   timeLimit?: number;
-  maxPrice?: number;
+  maxPrize?: number;
   description?: string;
   difficulty?: "EASY" | "MEDIUM" | "HARD";
   categoryId?: number;
@@ -88,68 +76,70 @@ interface UpdateQuizInput {
   }[];
 }
 
-interface QuizFilterDto {
-  limit?: number;
-  difficulty?: "EASY" | "MEDIUM" | "HARD";
-  categoryId?: number;
+export interface QuizResult {
+  id: number;
+  userId: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  totalTimeSpent: number;
+  totalCoinsEarned: number;
+  accuracy: number;
+  completedAt: string;
 }
 
-interface AdminQuizFilterDto {
-  page?: number;
-  limit?: number;
-  difficulty?: "EASY" | "MEDIUM" | "HARD";
-  categoryId?: number;
-  search?: string;
-  createdBy?: number;
+interface QuizSession {
+  id: number;
+  userId: number;
+  selectedQuizzes: ClientQuiz[];
+  startedAt: Date;
+  completedAt?: Date;
+  status: "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
+  totalQuestions: number;
+  answeredCount: number;
 }
 
-// Quiz Store-এর স্টেট এবং অ্যাকশন
+interface ApiError {
+  message: string;
+  statusCode: number;
+}
+
 interface QuizState {
-  quizzes: Quiz[];
+  isQuizStarted: boolean;
+  quizzes: ClientQuiz[];
   currentSession: QuizSession | null;
-  currentQuiz: Quiz | null;
+  currentQuiz: ClientQuiz | null;
   timeLeft: number;
-  answers: Answer[];
+  answers: ClientQuiz["answers"];
   selectedAnswerId: number | null;
   sessionResult: QuizResult | null;
   loading: boolean;
   error: string | null;
 
-  // ইউজার অ্যাকশন
   startQuizSession: (filters: QuizFilterDto) => Promise<void>;
-  getNextQuiz: (sessionId: number, nextQuizId: number | null) => Promise<void>;
-  getPreviousQuiz: (
-    sessionId: number,
-    previousQuizId: number | null
-  ) => Promise<void>;
+  setIsQuizStarted: (isStarted: boolean) => void;
   submitAnswer: (
     sessionId: number,
     quizId: number,
-    answerId: number,
+    answerId: number | null,
     startTime: string
-  ) => Promise<void>;
-  createQuizResult: (sessionId: number) => Promise<void>;
+  ) => Promise<QuizAnswerResponse>;
   getQuizById: (quizId: number) => Promise<void>;
-
-  // অ্যাডমিন অ্যাকশন
   getQuizzesForAdmin: (filters: AdminQuizFilterDto) => Promise<void>;
-  createQuiz: (input: CreateQuizInput) => Promise<APIResponse<Quiz>>;
-  updateQuiz: (quizId: number, input: UpdateQuizInput) => Promise<void>;
+  createQuiz: (input: CreateQuizDto) => Promise<APIResponse<ClientQuiz>>;
+  updateQuiz: (quizId: number, input: UpdateQuizDto) => Promise<void>;
   deleteQuiz: (
     quizId: number
   ) => Promise<{ success: boolean; message: string }>;
-
-  // ইউটিলিটি
   resetQuiz: () => void;
   tickTimer: () => void;
   clearError: () => void;
 }
 
-// Quiz Store
 export const useQuizStore = create<QuizState>()(
   devtools(
     persist(
       (set, get) => ({
+        isQuizStarted: false,
         quizzes: [],
         currentSession: null,
         currentQuiz: null,
@@ -160,18 +150,23 @@ export const useQuizStore = create<QuizState>()(
         loading: false,
         error: null,
 
-        // ইউজার: কুইজ সেশন শুরু
         startQuizSession: async (filters: QuizFilterDto) => {
+          if (get().isQuizStarted || get().loading) return;
           try {
             set({ loading: true, error: null });
-            const response = await api.get("/quizzes/start", {
+            get().setIsQuizStarted(true);
+            const { data: response } = await api.get("/quizzes/start", {
               params: filters,
             });
+            if (!response.success)
+              throw new Error(
+                response.message || "Failed to start quiz session"
+              );
             const { sessionId, currentQuiz, totalQuizzes } = response.data;
             const session: QuizSession = {
               id: sessionId,
-              userId: 0, // userId ব্যাকএন্ড থেকে আসবে
-              selectedQuizzes: [currentQuiz], // প্রথম কুইজ ক্যাশে রাখা
+              userId: useAuthStore.getState().user?.id || 0,
+              selectedQuizzes: [currentQuiz],
               startedAt: new Date(),
               status: "IN_PROGRESS",
               totalQuestions: totalQuizzes,
@@ -179,13 +174,14 @@ export const useQuizStore = create<QuizState>()(
             };
             set({
               currentSession: session,
-              currentQuiz: currentQuiz,
-              timeLeft: currentQuiz.timeLimit,
+              currentQuiz,
+              timeLeft: currentQuiz.timeLimit || 0,
               answers: currentQuiz.answers,
               loading: false,
             });
           } catch (error) {
             const axiosError = error as AxiosError<ApiError>;
+            get().setIsQuizStarted(false);
             set({
               loading: false,
               error:
@@ -196,158 +192,51 @@ export const useQuizStore = create<QuizState>()(
           }
         },
 
-        // ইউজার: পরবর্তী কুইজ ফেচ
-        getNextQuiz: async (sessionId: number, nextQuizId: number | null) => {
-          const { currentSession } = get();
-          if (
-            !currentSession ||
-            currentSession.answeredCount >= currentSession.totalQuestions ||
-            !nextQuizId
-          ) {
-            await get().createQuizResult(sessionId);
-            return;
-          }
-
-          // selectedQuizzes-এ nextQuizId আছে কিনা চেক
-          const cachedQuiz = currentSession.selectedQuizzes.find(
-            (q) => q.id === nextQuizId
-          );
-          if (cachedQuiz) {
-            set({
-              currentQuiz: cachedQuiz,
-              timeLeft: cachedQuiz.timeLimit,
-              answers: cachedQuiz.answers,
-              selectedAnswerId: null,
-            });
-            return;
-          }
-
-          // API থেকে ফেচ করা
-          try {
-            set({ loading: true, error: null });
-            const response = await api.get("/quizzes/next", {
-              params: { sessionId, nextQuizId },
-            });
-            const { currentQuiz: fetchedQuiz } = response.data || {};
-            if (!fetchedQuiz) {
-              await get().createQuizResult(sessionId);
-              return;
-            }
-            set({
-              currentQuiz: fetchedQuiz,
-              timeLeft: fetchedQuiz.timeLimit,
-              answers: fetchedQuiz.answers,
-              selectedAnswerId: null,
-              currentSession: {
-                ...currentSession,
-                selectedQuizzes: [
-                  ...currentSession.selectedQuizzes,
-                  fetchedQuiz,
-                ],
-              },
-              loading: false,
-            });
-          } catch (error) {
-            const axiosError = error as AxiosError<ApiError>;
-            set({
-              loading: false,
-              error:
-                axiosError.response?.data?.message ||
-                "Failed to fetch next quiz",
-            });
-            throw error;
-          }
-        },
-
-        // ইউজার: পূর্ববর্তী কুইজ ফেচ
-        getPreviousQuiz: async (
-          sessionId: number,
-          previousQuizId: number | null
-        ) => {
-          if (!previousQuizId) return;
-
-          const { currentSession } = get();
-          if (!currentSession) return;
-
-          // selectedQuizzes-এ previousQuizId আছে কিনা চেক
-          const cachedQuiz = currentSession.selectedQuizzes.find(
-            (q) => q.id === previousQuizId
-          );
-          if (cachedQuiz) {
-            set({
-              currentQuiz: cachedQuiz,
-              timeLeft: cachedQuiz.timeLimit,
-              answers: cachedQuiz.answers,
-              selectedAnswerId: null,
-            });
-            return;
-          }
-
-          // API থেকে ফেচ করা
-          try {
-            set({ loading: true, error: null });
-            const response = await api.get("/quizzes/next", {
-              params: { sessionId, nextQuizId: previousQuizId },
-            });
-            const fetchedQuiz = response.data;
-            set({
-              currentQuiz: fetchedQuiz,
-              timeLeft: fetchedQuiz.timeLimit,
-              answers: fetchedQuiz.answers,
-              selectedAnswerId: null,
-              currentSession: {
-                ...currentSession,
-                selectedQuizzes: [
-                  ...currentSession.selectedQuizzes,
-                  fetchedQuiz,
-                ],
-              },
-              loading: false,
-            });
-          } catch (error) {
-            const axiosError = error as AxiosError<ApiError>;
-            set({
-              loading: false,
-              error:
-                axiosError.response?.data?.message ||
-                "Failed to fetch previous quiz",
-            });
-            throw error;
-          }
-        },
-
-        // ইউজার: উত্তর সাবমিট
         submitAnswer: async (
           sessionId: number,
           quizId: number,
-          answerId: number,
+          answerId: number | null,
           startTime: string
         ) => {
           const { currentSession } = get();
-          if (!currentSession) return;
+          if (!currentSession) throw new Error("No active session");
 
           try {
             set({ loading: true, error: null });
-            const response = await api.post("/quizzes/submit", {
-              sessionId,
-              quizId,
-              answerId,
-              encryptedStartTime: startTime, // startTime পাঠানো
-            });
-            const result: QuizAnswerResponse = response.data;
+            const {
+              data: {
+                success,
+                data: { answerResponse, nextQuiz, result },
+                message,
+              },
+            }: { data: APIResponse<SubmitQuizAnswerResponse> } = await api.post(
+              "/quizzes/submit",
+              { sessionId, quizId, answerId, encryptedStartTime: startTime }
+            );
+            if (!success) throw new Error(message || "Failed to submit answer");
             set({
               selectedAnswerId: answerId,
               currentSession: {
                 ...currentSession,
                 answeredCount: currentSession.answeredCount + 1,
+                ...(result && {
+                  status: "COMPLETED",
+                  completedAt: new Date(result.completedAt),
+                }),
               },
+              currentQuiz: nextQuiz || null,
+              timeLeft: nextQuiz?.timeLimit || 0,
+              answers: nextQuiz?.answers || [],
+              sessionResult: result || null,
               loading: false,
             });
-            await get().getNextQuiz(
-              sessionId,
-              currentSession.selectedQuizzes.find((q) => q.id === quizId)
-                ?.nextQuizId || null
-            );
+            if (result?.id) {
+              const profileState = useProfileStore.getState();
+              profileState.fetchAchievements();
+              profileState.fetchUserStats();
+              profileState.fetchQuizHistory();
+            }
+            return answerResponse;
           } catch (error) {
             const axiosError = error as AxiosError<ApiError>;
             set({
@@ -359,51 +248,14 @@ export const useQuizStore = create<QuizState>()(
           }
         },
 
-        // ইউজার: কুইজ রেজাল্ট তৈরি
-        createQuizResult: async (sessionId: number) => {
-          if (!useAuthStore.getState().user) return;
-          const { currentSession } = get();
-          if (!currentSession) return;
-
-          try {
-            set({ loading: true, error: null });
-            const response = await api.post("/quizzes/create-quiz-result", {
-              sessionId,
-            });
-            set({
-              sessionResult: response.data,
-              currentSession: {
-                ...currentSession,
-                status: "COMPLETED",
-                completedAt: new Date(),
-              },
-              currentQuiz: null,
-              timeLeft: 0,
-              answers: [],
-              selectedAnswerId: null,
-              loading: false,
-            });
-          } catch (error) {
-            const axiosError = error as AxiosError<ApiError>;
-            set({
-              loading: false,
-              error:
-                axiosError.response?.data?.message ||
-                "Failed to create quiz result",
-            });
-            throw error;
-          }
-        },
-
-        // ইউজার/পাবলিক: কুইজ ফেচ বাই আইডি
         getQuizById: async (quizId: number) => {
           try {
             set({ loading: true, error: null });
-            const response = await api.get(`/quizzes/${quizId}`);
+            const { data } = await api.get(`/quizzes/${quizId}`);
             set({
-              currentQuiz: response.data,
-              timeLeft: response.data.timeLimit,
-              answers: response.data.answers,
+              currentQuiz: data,
+              timeLeft: data.timeLimit || 0,
+              answers: data.answers,
               loading: false,
             });
           } catch (error) {
@@ -417,14 +269,10 @@ export const useQuizStore = create<QuizState>()(
           }
         },
 
-        // অ্যাডমিন: সব কুইজ ফেচ
         getQuizzesForAdmin: async (filters: AdminQuizFilterDto) => {
+          if (useAuthStore.getState().user?.role !== "ADMIN") return;
+
           try {
-            if (
-              !useAuthStore.getState().user ||
-              useAuthStore.getState().user?.role !== "ADMIN"
-            )
-              return;
             set({ loading: true, error: null });
             const { data } = await api.get("/quizzes/admin", {
               params: filters,
@@ -442,27 +290,19 @@ export const useQuizStore = create<QuizState>()(
           }
         },
 
-        // অ্যাডমিন: কুইজ তৈরি
-        createQuiz: async (input: CreateQuizInput) => {
-          try {
-            if (
-              !useAuthStore.getState().user ||
-              useAuthStore.getState().user?.role !== "ADMIN"
-            )
-              throw new Error("Unauthorized");
+        createQuiz: async (input: CreateQuizDto) => {
+          if (useAuthStore.getState().user?.role !== "ADMIN")
+            throw new Error("Unauthorized");
 
+          try {
             set({ loading: true, error: null });
-            const { data } = await api.post<APIResponse<Quiz>>(
+            const { data } = await api.post<APIResponse<ClientQuiz>>(
               "/quizzes/admin",
               input
             );
             if (!data.success)
               throw new Error(data.message || "Failed to create quiz");
-
-            set({
-              quizzes: [data.data, ...get().quizzes],
-              loading: false,
-            });
+            set({ quizzes: [data.data, ...get().quizzes], loading: false });
             return data;
           } catch (error) {
             const axiosError = error as AxiosError<ApiError>;
@@ -475,20 +315,15 @@ export const useQuizStore = create<QuizState>()(
           }
         },
 
-        // অ্যাডমিন: কুইজ আপডেট
-        updateQuiz: async (quizId: number, input: UpdateQuizInput) => {
+        updateQuiz: async (quizId: number, input: UpdateQuizDto) => {
+          if (useAuthStore.getState().user?.role !== "ADMIN")
+            throw new Error("Unauthorized");
+
           try {
-            if (
-              !useAuthStore.getState().user ||
-              useAuthStore.getState().user?.role !== "ADMIN"
-            )
-              throw new Error("Unauthorized");
             set({ loading: true, error: null });
-            const response = await api.put(`/quizzes/admin/${quizId}`, input);
+            const { data } = await api.put(`/quizzes/admin/${quizId}`, input);
             set({
-              quizzes: get().quizzes.map((q) =>
-                q.id === quizId ? response.data : q
-              ),
+              quizzes: get().quizzes.map((q) => (q.id === quizId ? data : q)),
               loading: false,
             });
           } catch (error) {
@@ -502,14 +337,11 @@ export const useQuizStore = create<QuizState>()(
           }
         },
 
-        // অ্যাডমিন: কুইজ ডিলিট
         deleteQuiz: async (quizId: number) => {
+          if (useAuthStore.getState().user?.role !== "ADMIN")
+            throw new Error("Unauthorized");
+
           try {
-            if (
-              !useAuthStore.getState().user ||
-              useAuthStore.getState().user?.role !== "ADMIN"
-            )
-              throw new Error("Unauthorized");
             set({ loading: true, error: null });
             const { data } = await api.delete(`/quizzes/admin/${quizId}`);
             if (!data.success)
@@ -526,21 +358,14 @@ export const useQuizStore = create<QuizState>()(
               error:
                 axiosError.response?.data?.message || "Failed to delete quiz",
             });
-            throw {
-              success: false,
-              message:
-                axiosError.response?.data?.message ||
-                (error instanceof Error
-                  ? error.message
-                  : "Failed to delete quiz"),
-            };
+            throw error;
           }
         },
 
-        // ইউটিলিটি: রিসেট
         resetQuiz: () => {
+          useCategoryStore.getState().setSelectedCategoryId(null);
           set({
-            quizzes: [],
+            isQuizStarted: false,
             currentSession: null,
             currentQuiz: null,
             timeLeft: 0,
@@ -552,17 +377,23 @@ export const useQuizStore = create<QuizState>()(
           });
         },
 
-        // ইউটিলিটি: টাইমার টিক
+        setIsQuizStarted: (isStarted: boolean) =>
+          set({ isQuizStarted: isStarted }),
+
         tickTimer: () => {
           const { timeLeft, currentSession, currentQuiz } = get();
           if (timeLeft > 0) {
             set({ timeLeft: timeLeft - 1 });
           } else if (currentSession && currentQuiz) {
-            get().getNextQuiz(currentSession.id, currentQuiz.nextQuizId); // টাইম আউট হলে পরবর্তী প্রশ্ন
+            get().submitAnswer(
+              currentSession.id,
+              currentQuiz.id,
+              null,
+              currentQuiz.startTime
+            );
           }
         },
 
-        // ইউটিলিটি: এরর ক্লিয়ার
         clearError: () => set({ error: null }),
       }),
       {
@@ -570,7 +401,6 @@ export const useQuizStore = create<QuizState>()(
         storage: createJSONStorage(() => localStorage),
         partialize: (state) => ({
           currentSession: state.currentSession,
-          sessionResult: state.sessionResult,
         }),
       }
     )

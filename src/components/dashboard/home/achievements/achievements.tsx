@@ -89,7 +89,7 @@ export default function AchievementsSection({
 }) {
 
   return (
-    <div className="w-full bg-white p-6 rounded-xl shadow-sm flex flex-col">
+    <div className="w-full bg-white p-6 border border-gray-100 rounded-xl shadow-sm flex flex-col">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-medium">Achievements</h2>
       </div>

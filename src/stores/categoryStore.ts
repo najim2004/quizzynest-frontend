@@ -27,10 +27,12 @@ export interface Category {
 
 interface CategoryStore {
   categories: Category[];
+  selectedCategoryId: number | null;
   loading: boolean;
   error: string | null;
 
   // Actions
+  setSelectedCategoryId: (category: number | null) => void;
   fetchCategories: () => Promise<void>;
   createCategory: (formData: FormData) => Promise<APIResponse<Category>>;
   updateCategory: (id: number, formData: FormData) => Promise<Category>;
@@ -43,6 +45,7 @@ interface CategoryStore {
 export const useCategoryStore = create<CategoryStore>((set) => ({
   categories: [],
   loading: false,
+  selectedCategoryId: null,
   error: null,
 
   fetchCategories: async () => {
@@ -174,4 +177,6 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
       set({ loading: false });
     }
   },
+  setSelectedCategoryId: (category: number | null) =>
+    set({ selectedCategoryId: category }),
 }));

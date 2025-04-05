@@ -1,8 +1,9 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { QuizHistoryResult } from "@/stores/profileStore";
-import { Clock, CheckCircle2,Coins } from "lucide-react";
+import { Clock, CheckCircle2, Coins } from "lucide-react";
 import Link from "next/link";
 
 const DUMMY_QUIZ_HISTORY: QuizHistoryResult[] = [
@@ -53,7 +54,7 @@ export default function PlayedQuizzesHistory({
   quizHistory?: QuizHistoryResult[];
 }) {
   return (
-    <div className="w-full bg-white p-6 rounded-xl shadow-sm flex flex-col">
+    <div className="w-full bg-white p-6 border border-gray-100 rounded-xl shadow-sm flex flex-col">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-medium">Quiz Histories</h2>
       </div>
@@ -80,37 +81,37 @@ function QuizHistoryItem({ quiz }: { quiz: QuizHistoryResult }) {
     const remainingSeconds = seconds % 60;
     return `${minutes}m ${remainingSeconds}s`;
   };
-
-  // Calculate category color based on accuracy
-  const getCategoryColor = (accuracy: number): string => {
-    if (accuracy >= 90) return "bg-green-500";
-    if (accuracy >= 70) return "bg-blue-500";
-    if (accuracy >= 50) return "bg-purple-500";
-    return "bg-red-500";
-  };
-
   return (
     <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start gap-3">
-        <div
-          className={`${getCategoryColor(
-            quiz.accuracy
-          )} w-10 h-10 rounded-md flex items-center justify-center text-white`}
-        >
-          {quiz.categoryName.charAt(0)}
-        </div>
+        <Avatar className="h-8 w-8 rounded-sm p-1.5" style={{backgroundColor:`${quiz.category.color}`}}>
+          <AvatarImage
+            src={
+              quiz.category.icon ||
+              "https://img.icons8.com/officel/100/user.png"
+            }
+            alt={`${quiz.category?.name}'s avatar`}
+          />
+          <AvatarFallback
+            className="dark:bg-gray-800 dark:text-gray-200"
+            style={{ backgroundColor: `${quiz.category.color}` }}
+          >
+            {quiz.category.name?.charAt(0)?.toUpperCase() || "CG"}
+          </AvatarFallback>
+        </Avatar>
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <h3 className="font-medium text-base text-nowrap">
-              {quiz.categoryName}
+              {quiz.category.name}
             </h3>
             <div className="max-w-36 flex items-center gap-4">
               <Progress
                 value={(quiz.correctAnswers / quiz.totalQuestions) * 100}
                 className="h-1.5 max-w-full min-w-20"
-                indicatorClassName={`${getScoreColorClass(
-                  (quiz.correctAnswers / quiz.totalQuestions) * 100
-                )}`}
+                indicatorStyle={{
+                  background: `linear-gradient(to right, ${quiz.category.color}20, ${quiz.category.color})`,
+                  border: "none",
+                }}
               />
               <p>
                 {((quiz.correctAnswers / quiz.totalQuestions) * 100).toFixed(1)}
@@ -133,11 +134,4 @@ function QuizHistoryItem({ quiz }: { quiz: QuizHistoryResult }) {
       </div>
     </div>
   );
-}
-
-function getScoreColorClass(score: number): string {
-  if (score >= 90) return "bg-green-500";
-  if (score >= 70) return "bg-blue-500";
-  if (score >= 50) return "bg-amber-500";
-  return "bg-red-500";
 }

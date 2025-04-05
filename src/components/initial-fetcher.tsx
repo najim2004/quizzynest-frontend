@@ -10,9 +10,11 @@ interface InitialFetcherProps {
 const InitialFetcher: FC<InitialFetcherProps> = ({ children }) => {
   const { getUser, user } = useAuthStore();
   const { categories, fetchCategories } = useCategoryStore();
+
   useEffect(() => {
     if (!user) getUser();
   }, [getUser, user]);
+
   useEffect(() => {
     if (!categories.length) fetchCategories();
   }, [categories, fetchCategories]);

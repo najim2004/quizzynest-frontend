@@ -8,11 +8,11 @@ import {
 import { Button } from "@/components/ui/button";
 import ActionMenu from "../action-menu/action-menu";
 import Image from "next/image";
-import Link from "next/link";
 
 interface QuizCardProps {
   id: number;
   imageUrl: string;
+  loading?: boolean;
   bgColor: string;
   questionCount: number;
   title: string;
@@ -20,10 +20,12 @@ interface QuizCardProps {
   isAdmin: boolean;
   onDelete?: (id: number) => void;
   onEdit?: (id: number) => void;
+  onStart?: (id: number) => void;
 }
 
 export const QuizCard = ({
   id,
+  loading,
   imageUrl,
   bgColor,
   questionCount,
@@ -31,6 +33,7 @@ export const QuizCard = ({
   description,
   onDelete,
   onEdit,
+  onStart,
   isAdmin = false,
 }: QuizCardProps) => {
   const cardStyle = {
@@ -67,20 +70,25 @@ export const QuizCard = ({
           </div>
           {isAdmin && (
             <ActionMenu
-              onDelete={() => onDelete(id)}
-              onEdit={() => onEdit(id)}
+              onDelete={() => (onDelete ? onDelete(id) : null)}
+              onEdit={() => (onEdit ? onEdit(id) : null)}
             />
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-full">
         <h3 className="font-medium text-lg mb-1">{title}</h3>
         <p className="text-gray-500 text-sm">{description}</p>
       </CardContent>
       {!isAdmin && (
         <CardFooter>
-          <Button className="w-full bg-white/50 hover:bg-white/70 text-gray-500">
-            <Link href={`/dashboard/quiz/${id}`} className="w-full">Start Quiz</Link>
+          <Button
+            disabled={loading}
+            variant="outline"
+            onClick={() => (onStart ? onStart(id) : null)}
+            className="w-full bg-white/50 hover:bg-white/70 text-gray-500 border-none"
+          >
+            {loading ? "Loading..." : "Start Quiz"}
           </Button>
         </CardFooter>
       )}

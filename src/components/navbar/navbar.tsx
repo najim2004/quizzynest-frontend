@@ -150,14 +150,14 @@ function ThemeToggle({
   return (
     <Button
       variant="ghost"
-      size="icon"
+      size="lg"
       onClick={toggleTheme}
       className="text-gray-300 hover:text-white hover:bg-transparent"
     >
       {theme === "dark" ? (
-        <Sun className="h-5 w-5" />
+        <Sun className="size-6" />
       ) : (
-        <Moon className="h-5 w-5" />
+        <Moon className="size-6" />
       )}
       <span className="sr-only">Toggle theme</span>
     </Button>
