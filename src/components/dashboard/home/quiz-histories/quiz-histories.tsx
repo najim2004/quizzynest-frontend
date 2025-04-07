@@ -6,39 +6,6 @@ import { QuizHistoryResult } from "@/stores/profileStore";
 import { Clock, CheckCircle2, Coins } from "lucide-react";
 import Link from "next/link";
 
-const DUMMY_QUIZ_HISTORY: QuizHistoryResult[] = [
-  {
-    id: 1,
-    categoryName: "Mathematics",
-    totalQuestions: 10,
-    correctAnswers: 8,
-    totalTimeSpent: 300,
-    totalCoinsEarned: 80,
-    accuracy: 80,
-    completedAt: new Date("2024-03-29"),
-  },
-  {
-    id: 2,
-    categoryName: "Science",
-    totalQuestions: 15,
-    correctAnswers: 14,
-    totalTimeSpent: 450,
-    totalCoinsEarned: 140,
-    accuracy: 93,
-    completedAt: new Date("2024-03-28"),
-  },
-  {
-    id: 3,
-    categoryName: "History",
-    totalQuestions: 12,
-    correctAnswers: 6,
-    totalTimeSpent: 360,
-    totalCoinsEarned: 30,
-    accuracy: 50,
-    completedAt: new Date("2024-03-27"),
-  },
-];
-
 const StatusBadge = () => {
   return (
     <Badge className="bg-green-100 text-green-800 hover:bg-green-100 flex items-center gap-1">
@@ -49,7 +16,7 @@ const StatusBadge = () => {
 };
 
 export default function PlayedQuizzesHistory({
-  quizHistory = DUMMY_QUIZ_HISTORY,
+  quizHistory = [],
 }: {
   quizHistory?: QuizHistoryResult[];
 }) {
@@ -84,11 +51,14 @@ function QuizHistoryItem({ quiz }: { quiz: QuizHistoryResult }) {
   return (
     <div className="border rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start gap-3">
-        <Avatar className="h-8 w-8 rounded-sm p-1.5" style={{backgroundColor:`${quiz.category.color}`}}>
+        <Avatar
+          className="h-8 w-8 rounded-sm p-1.5"
+          style={{ backgroundColor: `${quiz.category.color}` }}
+        >
           <AvatarImage
             src={
               quiz.category.icon ||
-              "https://img.icons8.com/officel/100/user.png"
+              "https://www.svgrepo.com/show/445599/category.svg"
             }
             alt={`${quiz.category?.name}'s avatar`}
           />
@@ -109,7 +79,7 @@ function QuizHistoryItem({ quiz }: { quiz: QuizHistoryResult }) {
                 value={(quiz.correctAnswers / quiz.totalQuestions) * 100}
                 className="h-1.5 max-w-full min-w-20"
                 indicatorStyle={{
-                  background: `linear-gradient(to right, ${quiz.category.color}20, ${quiz.category.color})`,
+                  background: `linear-gradient(to right, ${quiz.category.color}40, ${quiz.category.color})`,
                   border: "none",
                 }}
               />

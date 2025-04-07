@@ -3,8 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, X } from "lucide-react";
 import ActionMenu from "../action-menu/action-menu";
-import { Quiz } from "@/stores/quizStore";
 import { Category } from "@/stores/categoryStore";
+import { ClientQuiz } from "@/stores/quizStore";
 
 export default function QuizQuestions({
   questions,
@@ -12,7 +12,7 @@ export default function QuizQuestions({
   onDelete,
   onEdit,
 }: {
-  questions: Quiz[];
+  questions: ClientQuiz[];
   categories: Category[];
   onDelete: (id: number) => void;
   onEdit: (id: number) => void;

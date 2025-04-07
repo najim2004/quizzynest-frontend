@@ -9,7 +9,7 @@ const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
     indicatorClassName?: string;
-    indicatorStyle?: any;
+    indicatorStyle?: React.CSSProperties;
   }
 >(({ className, value, indicatorClassName, indicatorStyle, ...props }, ref) => (
   <ProgressPrimitive.Root

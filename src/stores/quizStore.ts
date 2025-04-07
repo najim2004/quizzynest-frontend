@@ -6,23 +6,28 @@ import api from "@/components/axios/api";
 import { useCategoryStore } from "./categoryStore";
 import useProfileStore from "./profileStore";
 
-// ফ্রন্টএন্ডের জন্য টাইপ ডিফিনিশন
+export type DifficultyLevel = "EASY" | "MEDIUM" | "HARD";
+export type QuizStatus = "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
+export type AnswerLabel = "A" | "B" | "C" | "D";
+
+export interface Answer {
+  id: number;
+  label: AnswerLabel;
+  text: string;
+  isCorrect?: boolean;
+}
+
 export interface ClientQuiz {
   id: number;
   question: string;
-  timeLimit?: number; // অপশনাল
-  maxPrize?: number; // অপশনাল
+  timeLimit?: number;
+  maxPrize?: number;
   description?: string;
-  difficulty: "EASY" | "MEDIUM" | "HARD";
+  difficulty: DifficultyLevel;
   categoryId: number;
-  answers: {
-    id: number;
-    label: "A" | "B" | "C" | "D";
-    text: string;
-    isCorrect?: boolean;
-  }[];
+  answers: Answer[];
   currentQuizIndex: number;
-  startTime: string; // এনক্রিপ্টেড
+  startTime: string;
 }
 
 export interface QuizAnswerResponse {
@@ -34,46 +39,7 @@ export interface QuizAnswerResponse {
 export interface SubmitQuizAnswerResponse {
   answerResponse: QuizAnswerResponse;
   nextQuiz: ClientQuiz | null;
-  result?: QuizResult;
-}
-
-export interface QuizFilterDto {
-  limit?: number;
-  difficulty?: "EASY" | "MEDIUM" | "HARD";
-  categoryId?: number;
-}
-
-export interface AdminQuizFilterDto {
-  page?: number;
-  limit?: number;
-  difficulty?: "EASY" | "MEDIUM" | "HARD";
-  categoryId?: number;
-  search?: string;
-  createdBy?: number;
-}
-
-export interface CreateQuizDto {
-  question: string;
-  timeLimit?: number;
-  maxPrize?: number;
-  description?: string;
-  difficulty: "EASY" | "MEDIUM" | "HARD";
-  categoryId: number;
-  answers: { label: "A" | "B" | "C" | "D"; text: string; isCorrect: boolean }[];
-}
-
-export interface UpdateQuizDto {
-  question?: string;
-  timeLimit?: number;
-  maxPrize?: number;
-  description?: string;
-  difficulty?: "EASY" | "MEDIUM" | "HARD";
-  categoryId?: number;
-  answers?: {
-    label: "A" | "B" | "C" | "D";
-    text: string;
-    isCorrect: boolean;
-  }[];
+  result: QuizResult | null;
 }
 
 export interface QuizResult {
@@ -87,15 +53,56 @@ export interface QuizResult {
   completedAt: string;
 }
 
-interface QuizSession {
+export interface QuizSession {
   id: number;
   userId: number;
   selectedQuizzes: ClientQuiz[];
   startedAt: Date;
   completedAt?: Date;
-  status: "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
+  status: QuizStatus;
   totalQuestions: number;
   answeredCount: number;
+  earnedCoins: number;
+}
+
+export interface BaseQuizFilterDto {
+  limit?: number;
+  difficulty?: DifficultyLevel;
+  categoryId?: number;
+}
+
+export interface AdminQuizFilterDto extends BaseQuizFilterDto {
+  page?: number;
+  search?: string;
+  createdBy?: number;
+}
+
+export interface CreateQuizDto {
+  question: string;
+  timeLimit?: number;
+  maxPrize?: number;
+  description?: string;
+  difficulty: DifficultyLevel;
+  categoryId: number;
+  answers: {
+    label: AnswerLabel;
+    text: string;
+    isCorrect: boolean;
+  }[];
+}
+
+export interface UpdateQuizDto {
+  question?: string;
+  timeLimit?: number;
+  maxPrize?: number;
+  description?: string;
+  difficulty?: DifficultyLevel;
+  categoryId?: number;
+  answers?: {
+    label: AnswerLabel;
+    text: string;
+    isCorrect: boolean;
+  }[];
 }
 
 interface ApiError {
@@ -103,7 +110,7 @@ interface ApiError {
   statusCode: number;
 }
 
-interface QuizState {
+export interface QuizState {
   isQuizStarted: boolean;
   quizzes: ClientQuiz[];
   currentSession: QuizSession | null;
@@ -115,7 +122,8 @@ interface QuizState {
   loading: boolean;
   error: string | null;
 
-  startQuizSession: (filters: QuizFilterDto) => Promise<void>;
+  // Actions
+  startQuizSession: (filters: BaseQuizFilterDto) => Promise<void>;
   setIsQuizStarted: (isStarted: boolean) => void;
   submitAnswer: (
     sessionId: number,
@@ -139,6 +147,7 @@ export const useQuizStore = create<QuizState>()(
   devtools(
     persist(
       (set, get) => ({
+        // Initial state
         isQuizStarted: false,
         quizzes: [],
         currentSession: null,
@@ -150,7 +159,8 @@ export const useQuizStore = create<QuizState>()(
         loading: false,
         error: null,
 
-        startQuizSession: async (filters: QuizFilterDto) => {
+        // Actions implementation (same as before)
+        startQuizSession: async (filters: BaseQuizFilterDto) => {
           if (get().isQuizStarted || get().loading) return;
           try {
             set({ loading: true, error: null });
@@ -171,6 +181,7 @@ export const useQuizStore = create<QuizState>()(
               status: "IN_PROGRESS",
               totalQuestions: totalQuizzes,
               answeredCount: 0,
+              earnedCoins: 0,
             };
             set({
               currentSession: session,
@@ -223,6 +234,8 @@ export const useQuizStore = create<QuizState>()(
                   status: "COMPLETED",
                   completedAt: new Date(result.completedAt),
                 }),
+                earnedCoins:
+                  currentSession.earnedCoins + answerResponse.earnedCoins,
               },
               currentQuiz: nextQuiz || null,
               timeLeft: nextQuiz?.timeLimit || 0,
@@ -236,6 +249,7 @@ export const useQuizStore = create<QuizState>()(
               profileState.fetchUserStats();
               profileState.fetchQuizHistory();
             }
+
             return answerResponse;
           } catch (error) {
             const axiosError = error as AxiosError<ApiError>;

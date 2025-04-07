@@ -19,9 +19,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="h-screen py-8 bg-gray-50">
-      <div className="h-full flex border overflow-hidden rounded-4xl bg-white container mx-auto">
+      <div className="h-full flex borderrounded-3xl bg-white container mx-auto p-0 overflow-hidden ">
         <DashboardSidebar />
-        <main className="flex-1 overflow-y-auto p-6 relative">{children}</main>
+        <main className="flex-1 overflow-hidden overflow-y-auto relative">{children}</main>
       </div>
     </div>
   );

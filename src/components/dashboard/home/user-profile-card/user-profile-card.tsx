@@ -26,10 +26,10 @@ const UserProfileCard: FC<UserProfileCardProps> = ({
   rankThisMonth = 0,
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-5 items-center bg-[#6A5AE0] text-white p-5 rounded-4xl">
+    <div className="flex flex-col sm:flex-row gap-5 items-center bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] text-white p-5 rounded-4xl">
       {/* Profile Image Section */}
 
-      <div className="relative rounded-4xl overflow-hidden size-52 flex items-center justify-center bg-gray-50">
+      <div className="relative rounded-4xl overflow-hidden size-52 flex items-center justify-center bg-gray-50/60">
         <Image
           src={avatar || "https://img.icons8.com/officel/208/user.png"} // Add a fallback image
           alt={`${name}'s profile avatar`}
@@ -44,7 +44,7 @@ const UserProfileCard: FC<UserProfileCardProps> = ({
           }}
         />
 
-        <h3 className="absolute top-0 right-0 text-xl font-medium text-gray-800 bg-white px-3 py-1 rounded-bl-sm italic z-10">
+        <h3 className="absolute top-0 right-0 text-xl font-medium text-[#6A5AE0] bg-white/90 px-3 py-1 rounded-bl-2xl italic z-10">
           #{rankThisMonth}
         </h3>
       </div>

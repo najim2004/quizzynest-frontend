@@ -86,11 +86,12 @@ const DashboardQuestions = () => {
   };
 
   const onEdit = (id: number) => {
+    console.log(id);
     // Handle edit logic here
   };
 
   return (
-    <div className="max-h-full overflow-y-auto w-full p-0.5">
+    <div className="max-h-full overflow-y-auto w-full p-4">
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2 flex-1">
           <Input

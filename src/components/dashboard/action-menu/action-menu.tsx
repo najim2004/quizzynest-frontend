@@ -13,13 +13,16 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { ClassNameValue } from "tailwind-merge";
 
 interface ActionMenuProps {
+  className?: ClassNameValue;
   onDelete: () => void;
   onEdit: () => void;
 }
 
-const ActionMenu: FC<ActionMenuProps> = ({ onDelete, onEdit }) => {
+const ActionMenu: FC<ActionMenuProps> = ({ onDelete, onEdit, className }) => {
   const [open, setOpen] = useState(false);
   return (
     <div>
@@ -28,7 +31,10 @@ const ActionMenu: FC<ActionMenuProps> = ({ onDelete, onEdit }) => {
           <Button
             variant="ghost"
             size="icon"
-            className="bg-transparent hover:bg-transparent outline-none hover:outline-none shadow-none hover:shadow-none focus-visible:ring-0"
+            className={cn(
+              "bg-transparent hover:bg-transparent outline-none hover:outline-none shadow-none hover:shadow-none focus-visible:ring-0",
+              `${className}`
+            )}
           >
             <MoreVertical />
           </Button>

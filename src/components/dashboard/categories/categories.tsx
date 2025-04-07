@@ -18,12 +18,12 @@ export default function QuizCategories({
           onDelete={onDelete}
           onEdit={onEdit}
           key={index}
-          imageUrl={
+          icon={
             quiz?.icon || "https://www.svgrepo.com/show/445599/category.svg"
           }
-          bgColor={quiz.color || "white"}
+          color={quiz.color || "white"}
           questionCount={quiz._count.quizzes}
-          title={quiz.name}
+          name={quiz.name}
           description={quiz.description || ""}
           isAdmin={true}
         />

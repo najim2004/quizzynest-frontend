@@ -77,7 +77,9 @@ export default function Signup() {
         toast.error(result?.message || "User creation failed");
       }
     } catch (error) {
-      toast.error(error?.message || "Registration failed");
+      toast.error(
+        error instanceof Error ? error?.message : "Registration failed"
+      );
       // The error handling is already managed by the authStore
       console.error("Registration failed:", error);
     }

@@ -2,20 +2,24 @@ import type React from "react";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ActionMenu from "../action-menu/action-menu";
-import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface QuizCardProps {
   id: number;
-  imageUrl: string;
+  icon: string;
   loading?: boolean;
-  bgColor: string;
+  color: string;
   questionCount: number;
-  title: string;
+  name: string;
   description: string;
   isAdmin: boolean;
   onDelete?: (id: number) => void;
@@ -26,72 +30,87 @@ interface QuizCardProps {
 export const QuizCard = ({
   id,
   loading,
-  imageUrl,
-  bgColor,
+  icon,
+  color,
   questionCount,
-  title,
+  name,
   description,
   onDelete,
   onEdit,
   onStart,
   isAdmin = false,
 }: QuizCardProps) => {
-  const cardStyle = {
-    background: `linear-gradient(to bottom right, ${bgColor}40, ${bgColor}70)`,
-    border: "none",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-  };
-
-  const imageBgStyle = {
-    backgroundColor: `${bgColor}70`,
-  };
-
   return (
-    <Card className="gap-2" style={cardStyle}>
-      <CardHeader className="py-0">
-        <div className="flex justify-between items-center">
-          <div className="flex-1 flex justify-between items-center">
-            <div
-              className="p-3 rounded-md flex items-center justify-center w-12 h-12"
-              style={imageBgStyle}
-            >
-              <Image
-                src={imageUrl}
-                alt={`${title} image`}
-                width={20}
-                height={20}
-                className="object-cover rounded"
-              />
-            </div>
-
-            <span className="text-sm text-gray-500">
-              {questionCount} questions
-            </span>
-          </div>
-          {isAdmin && (
-            <ActionMenu
-              onDelete={() => (onDelete ? onDelete(id) : null)}
-              onEdit={() => (onEdit ? onEdit(id) : null)}
+    <Card
+      key={id}
+      className="overflow-hidden hover:shadow-md transition-shadow px-0 pt-0 rounded-lg"
+    >
+      <CardHeader
+        className="py-4 min-h-[160px]"
+        style={{ backgroundColor: color }}
+      >
+        <div className="flex justify-between items-start">
+          <Avatar className="h-8 w-8 rounded-sm">
+            <AvatarImage
+              src={icon || "https://www.svgrepo.com/show/445599/category.svg"}
+              alt={`${name}'s avatar`}
             />
-          )}
+            <AvatarFallback className="dark:bg-gray-800 dark:text-gray-200 border">
+              {name?.charAt(0)?.toUpperCase() || "CG"}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="flex">
+            <Badge variant="secondary" className="bg-white/50">
+              {questionCount} Questions
+            </Badge>
+            <ActionMenu
+              className="-mr-4"
+              onDelete={() => !!onDelete && onDelete(id)}
+              onEdit={() => !!onEdit && onEdit(id)}
+            />
+          </div>
         </div>
+        <CardTitle className="mt-4 md:text-xl">{name}</CardTitle>
+        <CardDescription className="text-foreground/70">
+          {description}
+        </CardDescription>
       </CardHeader>
-      <CardContent className="h-full">
-        <h3 className="font-medium text-lg mb-1">{title}</h3>
-        <p className="text-gray-500 text-sm">{description}</p>
+      <CardContent className="flex-grow">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline">Easy</Badge>
+          <Badge variant="outline">Medium</Badge>
+          <Badge variant="outline">Hard</Badge>
+        </div>
       </CardContent>
-      {!isAdmin && (
-        <CardFooter>
-          <Button
-            disabled={loading}
-            variant="outline"
-            onClick={() => (onStart ? onStart(id) : null)}
-            className="w-full bg-white/50 hover:bg-white/70 text-gray-500 border-none"
-          >
-            {loading ? "Loading..." : "Start Quiz"}
-          </Button>
-        </CardFooter>
-      )}
+      <CardFooter className={cn(isAdmin && "hidden")}>
+        <Button onClick={() => !!onStart && onStart(id)} className="w-full">
+          {loading ? (
+            <svg
+              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          ) : (
+            "Start Quiz"
+          )}
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

@@ -110,7 +110,7 @@ export default function LeaderboardUI() {
   const restOfList = leaderboardData.slice(3);
 
   return (
-    <div className="">
+    <div className="p-4">
       {/* Top 3 Section */}
       <div className="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] rounded-2xl mb-4 relative overflow-hidden pt-8">
         <div className="relative">

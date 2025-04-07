@@ -63,19 +63,19 @@ export default function DashboardSidebar() {
       <h1 className="text-lg font-bold p-4 mb-14">
         <Link
           href="/dashboard"
-          className="flex items-center justify-center space-x-2 font-bold text-xl text-black"
+          className="flex items-center space-x-2 font-bold text-xl text-black"
         >
           <Brain className="h-6 w-6 text-[#6C5CE7]" />
           <span>QuizzyNest</span>
         </Link>
       </h1>
-      <ul className="flex-grow">
+      <ul className="flex-grow space-y-3">
         {items.map((item) => (
-          <li key={item.title} className="group">
+          <li key={item.title} className="group px-2">
             <NavLink
               href={item.url}
-              activeClassName="text-[#6C5CE7]"
-              className="flex items-center gap-4 p-4 hover:text-[#6C5CE7] transition-colors"
+              activeClassName="text-white bg-gradient-to-r to-[#6C5CE7]/50 from-[#4834D4]/60 rounded-lg hover:text-white"
+              className="flex items-center gap-4 px-4 py-3 hover:text-[#6C5CE7] transition-colors"
             >
               <item.icon className="w-5 h-5" />
               <span>{item.title}</span>
@@ -86,7 +86,10 @@ export default function DashboardSidebar() {
       <div className="flex items-center px-4 h-16 gap-4">
         <Avatar>
           <AvatarImage
-            src={user?.profile?.profilePic||"https://img.icons8.com/officel/100/user.png"}
+            src={
+              user?.profile?.profilePic ||
+              "https://img.icons8.com/officel/100/user.png"
+            }
             className="object-cover"
             alt="User Avatar"
           />

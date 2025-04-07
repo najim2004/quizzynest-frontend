@@ -21,17 +21,16 @@ const CategoriesPage = () => {
   // ডিবাউন্সড ফেচ ফাংশন
   const debouncedFetchCategories = useCallback(
     debounce((newFilters) => {
+      console.log(newFilters);
       fetchCategories();
     }, 500),
     [fetchCategories]
   );
 
-  // ফিল্টার পরিবর্তন হলে ক্যাটাগরি ফেচ করা
   useEffect(() => {
     debouncedFetchCategories(filters);
   }, [filters, debouncedFetchCategories]);
 
-  // Search হ্যান্ডলার
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters((prev) => ({ ...prev, search: e.target.value, page: 1 }));
   };
@@ -52,7 +51,7 @@ const CategoriesPage = () => {
     console.log(id);
   };
   return (
-    <div className="relative h-full w-full p-0.5">
+    <div className="relative h-full w-full p-4">
       <div className="flex items-center justify-between mb-4">
         <Input
           name="search"
@@ -65,19 +64,12 @@ const CategoriesPage = () => {
 
         <CategoryCreateButton />
       </div>
-
-      {/* লোডিং এবং এরর হ্যান্ডলিং */}
       {loading && <p className="text-center">Loading categories...</p>}
       {error && (
         <div className="text-red-500 text-center">
-          {error}{" "}
-          <button onClick={clearError} className="underline">
-            Retry
-          </button>
+          {error} <button className="underline">Retry</button>
         </div>
       )}
-
-      {/* ক্যাটাগরি প্রদর্শন */}
       {!loading && !error && (
         <QuizCategories
           categories={categories}

@@ -91,7 +91,7 @@ export function AddQuestionForm() {
         maxPrize: values.maxPrize || 0,
         description: values.description,
         difficulty: values.difficulty,
-        categoryId: 1,
+        categoryId: values.categoryId,
         answers: values.answers,
       });
       if (!response || !response.success) {
