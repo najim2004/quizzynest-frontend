@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useAuthStore from "@/stores/authStore";
+import { cn } from "@/lib/utils";
 
 // Constants
 const NAV_LINKS = [
@@ -33,13 +34,15 @@ export function Navbar() {
   const { isAuthenticated } = useAuthStore();
 
   const isHomePage = pathname === "/";
+  const isLgHide: boolean =
+    pathname.includes("dashboard") || pathname.includes("quiz");
 
   // Handle scroll effect for background
   useEffect(() => {
     const updateBackground = () => {
       if (window.scrollY > 100) {
         setNavBackground(
-          "bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] dark:from-gray-900 dark:to-gray-900 backdrop-blur-md"
+          "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
         );
       } else {
         setNavBackground("bg-transparent");
@@ -48,7 +51,7 @@ export function Navbar() {
 
     if (!isHomePage) {
       setNavBackground(
-        "bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] dark:from-gray-900 dark:to-gray-900 backdrop-blur-md"
+        "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
       );
     } else {
       updateBackground();
@@ -67,14 +70,17 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 left-0 w-full z-50 transition-all duration-500 ${navBackground}`}
+      className={cn(
+        "sticky top-0 left-0 w-full z-50 transition-all duration-500",
+        `${navBackground} ${isLgHide ? "lg:hidden" : ""}`
+      )}
     >
       <div className="container mx-auto px-4">
         <nav className="flex h-16 items-center justify-between">
           {/* Brand Logo */}
           <Link
             href="/"
-            className="flex items-center space-x-2 font-bold text-xl text-white"
+            className="flex items-center space-x-2 font-bold text-xl text-foreground hover:text-foreground/80"
           >
             <Brain className="h-6 w-6" />
             <span>QuizzyNest</span>
@@ -132,7 +138,7 @@ function NavItem({ link }: { link: NavLink }) {
   return (
     <Link
       href={link.href}
-      className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+      className="text-sm font-medium text-foreground/60 hover:text-foreground transition-colors"
     >
       {link.name}
     </Link>
@@ -152,7 +158,7 @@ function ThemeToggle({
       variant="ghost"
       size="lg"
       onClick={toggleTheme}
-      className="text-gray-300 hover:text-white hover:bg-transparent"
+      className="text-foreground/60 hover:text-foreground hover:bg-accent"
     >
       {theme === "dark" ? (
         <Sun className="size-6" />
@@ -173,18 +179,21 @@ function UserDropdown() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-8 w-8 rounded-full ring-2 ring-gray-400 dark:ring-gray-700 hover:ring-gray-600 dark:hover:ring-gray-500"
+          className="relative h-8 w-8 rounded-full ring-2 ring-border hover:ring-border/80"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.profile?.profilePic||"https://img.icons8.com/officel/100/user.png"} alt={`${user?.fullName}'s avatar`} />
+            <AvatarImage
+              src={user?.profile?.profilePic}
+              alt={`${user?.fullName}'s avatar`}
+            />
             <AvatarFallback className="dark:bg-gray-800 dark:text-gray-200">
-              {user?.fullName?.charAt(0)?.toUpperCase() || 'UN'}
+              {user?.fullName?.charAt(0)?.toUpperCase() || "UN"}
             </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-56 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+        className="w-56 bg-popover border-border"
         align="end"
       >
         <DropdownMenuItem asChild>
@@ -194,7 +203,7 @@ function UserDropdown() {
           <Link href="/profile">Profile</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
+        <DropdownMenuItem
           className="text-red-400 hover:text-red-300"
           onClick={logout}
         >
@@ -212,13 +221,13 @@ function AuthLinks() {
     <div className="flex items-center gap-4">
       <Link
         href="/login"
-        className="text-sm font-medium text-gray-300 hover:text-white"
+        className="text-sm font-medium text-foreground/60 hover:text-foreground"
       >
         Login
       </Link>
       <Link
         href="/signup"
-        className="text-sm font-medium text-gray-300 hover:text-white"
+        className="text-sm font-medium text-foreground/60 hover:text-foreground"
       >
         Sign up
       </Link>
@@ -243,12 +252,12 @@ function MobileMenu({
           key={link.href}
           href={link.href}
           onClick={onClose}
-          className="text-base font-medium hover:text-gray-900 dark:hover:text-white"
+          className="text-base font-medium text-foreground/60 hover:text-foreground"
         >
           {link.name}
         </Link>
       ))}
-      <div className="flex flex-col gap-4 pt-6 border-t border-gray-300 dark:border-gray-700">
+      <div className="flex flex-col gap-4 pt-6 border-t border-border">
         {isAuthenticated ? (
           <>
             <Link
@@ -265,7 +274,7 @@ function MobileMenu({
             >
               Profile
             </Link>
-            <button 
+            <button
               onClick={() => {
                 logout();
                 onClose();

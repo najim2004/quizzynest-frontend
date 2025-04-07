@@ -57,7 +57,7 @@ export default function NewQuizPage({
   const startQuiz = () => {
     if (!selectedCategoryId && categoryId) setSelectedCategoryId(categoryId);
 
-    router.push(`/dashboard/quiz/play?difficulty=${selectedDifficulty}&count=${selectedQuestionCount}`);
+    router.push(`/quiz/play?difficulty=${selectedDifficulty}&count=${selectedQuestionCount}`);
   };
 
   return (

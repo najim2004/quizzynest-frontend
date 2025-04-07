@@ -1,5 +1,3 @@
-"use client";
-
 import { Trophy, ArrowLeft, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +9,6 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 interface QuizResultProps {
   totalQuestions: number;
@@ -20,8 +16,8 @@ interface QuizResultProps {
   totalCoinsEarned: number;
   accuracy: number;
   totalTimeSpent: number;
-  onReset: () => void;
   onShare?: () => void;
+  onBack?: () => void;
 }
 
 export default function QuizResult({
@@ -30,16 +26,9 @@ export default function QuizResult({
   totalCoinsEarned,
   accuracy,
   totalTimeSpent,
-  onReset,
+  onBack,
   onShare,
 }: QuizResultProps) {
-  const router = useRouter();
-
-  const handleBack = () => {
-    onReset();
-    toast.success("Returning to home!");
-    router.back();
-  };
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -52,7 +41,7 @@ export default function QuizResult({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="w-full flex items-center justify-center p-4 h-full"
+      className="w-full flex items-center justify-center h-full"
     >
       <Card className="w-full max-w-3xl mx-auto flex flex-col border p-0 shadow-none overflow-hidden h-full bg-transparent">
         <CardHeader className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] p-6 text-center text-white flex flex-col justify-center items-center">
@@ -175,7 +164,7 @@ export default function QuizResult({
             className="flex gap-4"
           >
             <Button
-              onClick={handleBack}
+              onClick={onBack}
               variant="outline"
               className="flex items-center gap-2 px-6 py-2 text-gray-700 border-gray-300 hover:bg-gray-100"
             >

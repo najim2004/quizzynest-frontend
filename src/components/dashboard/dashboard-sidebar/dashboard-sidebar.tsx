@@ -18,6 +18,7 @@ const items = [
     title: "Home",
     url: "/dashboard",
     icon: Home,
+    accessOnly: "ALLUSER",
   },
   {
     title: "Play Quiz",
@@ -28,31 +29,37 @@ const items = [
     title: "Leaderboard",
     url: "/dashboard/leaderboard",
     icon: MdOutlineLeaderboard,
+    accessOnly: "USER",
   },
   {
     title: "Shop",
     url: "/dashboard/shop",
     icon: ShoppingCart,
+    accessOnly: "USER",
   },
   {
     title: "Categories",
     url: "/dashboard/categories",
     icon: MdCategory,
+    accessOnly: "ADMIN",
   },
   {
     title: "Questions",
     url: "/dashboard/questions",
     icon: FaQuestion,
+    accessOnly: "ADMIN",
   },
   {
     title: "Vouchers",
     url: "/dashboard/vouchers",
     icon: Ticket,
+    accessOnly: "USER",
   },
   {
     title: "Settings",
     url: "/dashboard/#",
     icon: Settings,
+    accessOnly: "USER",
   },
 ];
 
@@ -70,18 +77,22 @@ export default function DashboardSidebar() {
         </Link>
       </h1>
       <ul className="flex-grow space-y-3">
-        {items.map((item) => (
-          <li key={item.title} className="group px-2">
-            <NavLink
-              href={item.url}
-              activeClassName="text-white bg-gradient-to-r to-[#6C5CE7]/50 from-[#4834D4]/60 rounded-lg hover:text-white"
-              className="flex items-center gap-4 px-4 py-3 hover:text-[#6C5CE7] transition-colors"
-            >
-              <item.icon className="w-5 h-5" />
-              <span>{item.title}</span>
-            </NavLink>
-          </li>
-        ))}
+        {items.map(
+          (item) =>
+            (item.accessOnly === user?.role ||
+              item.accessOnly === "ALLUSER") && (
+              <li key={item.title} className="group px-2">
+                <NavLink
+                  href={item.url}
+                  activeClassName="text-primary border border-primary rounded-lg"
+                  className="flex items-center gap-4 px-4 py-3 hover:text-primary transition-colors"
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.title}</span>
+                </NavLink>
+              </li>
+            )
+        )}
       </ul>
       <div className="flex items-center px-4 h-16 gap-4">
         <Avatar>

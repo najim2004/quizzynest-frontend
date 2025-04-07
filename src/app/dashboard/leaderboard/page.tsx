@@ -1,4 +1,4 @@
-import LeaderboardCard from "@/components/dashboard/leaderboard/leaderboard-card/leaderboard-card";
+import AllUserRank from "@/components/dashboard/leaderboard/all-user-rank";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coins, Crown } from "lucide-react";
@@ -107,12 +107,11 @@ export default function LeaderboardUI() {
     },
   ];
   const topThree = leaderboardData.slice(0, 3);
-  const restOfList = leaderboardData.slice(3);
 
   return (
     <div className="p-4">
       {/* Top 3 Section */}
-      <div className="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] rounded-2xl mb-4 relative overflow-hidden pt-8">
+      <div className="bg-primary rounded-2xl mb-4 relative overflow-hidden pt-8">
         <div className="relative">
           <div className="flex items-end justify-center">
             {/* Second Place */}
@@ -184,27 +183,7 @@ export default function LeaderboardUI() {
           </div>
         </div>
       </div>
-      <div className="max-w-3xl mx-auto">
-        {/* Leaderboard Table */}
-        <div className="rounded-lg overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-            {restOfList.map((entry) => (
-              <LeaderboardCard key={entry.id} entry={entry} />
-            ))}
-          </div>
-        </div>
-        <div className="flex justify-center items-center mt-4 *:max-w-1/2 ">
-          <LeaderboardCard
-            entry={{
-              name: "Najim(You)",
-              avatar:
-                "https://ik.imagekit.io/golcqzkpl/1734767925484-7x84ch_4esE9FmK3?updatedAt=1734767928633",
-              score: 300,
-              position: 12,
-            }}
-          />
-        </div>
-      </div>
+      <AllUserRank/>
     </div>
   );
 }

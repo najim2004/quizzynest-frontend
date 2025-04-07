@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import useQuizStore, { DifficultyLevel } from "@/stores/quizStore";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,7 +14,7 @@ const isDifficultyLevel = (value: string): value is DifficultyLevel => {
   return ["EASY", "MEDIUM", "HARD"].includes(value);
 };
 
-export default function PlayGround() {
+function PlayGroundContent() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -112,7 +112,7 @@ export default function PlayGround() {
   }, [tickTimer, quiz?.id, currentSession?.id, loading]);
 
   return (
-    <div className="fixed inset-0 bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center p-4">
       {sessionResult ? (
         <QuizResult
           totalCoinsEarned={sessionResult.totalCoinsEarned}
@@ -120,7 +120,7 @@ export default function PlayGround() {
           totalQuestions={sessionResult.totalQuestions}
           accuracy={sessionResult.accuracy}
           totalTimeSpent={sessionResult.totalTimeSpent}
-          onReset={resetQuiz}
+          onBack={handleClose}
         />
       ) : (
         <PlayQuiz
@@ -135,5 +135,19 @@ export default function PlayGround() {
         />
       )}
     </div>
+  );
+}
+
+export default function PlayGround() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      }
+    >
+      <PlayGroundContent />
+    </Suspense>
   );
 }

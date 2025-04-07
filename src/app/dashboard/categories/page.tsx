@@ -4,21 +4,20 @@ import CategoryCreateButton from "@/components/dashboard/categories/category-cre
 import { Input } from "@/components/ui/input";
 import { useCategoryStore } from "@/stores/categoryStore";
 import React, { useEffect, useState, useCallback } from "react";
-import debounce from "lodash/debounce"; // lodash থেকে debounce ইমপোর্ট
+import debounce from "lodash/debounce";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 const CategoriesPage = () => {
   const { categories, fetchCategories, loading, error, deleteCategory } =
     useCategoryStore();
 
-  // ফিল্টারের জন্য স্টেট
   const [filters, setFilters] = useState({
     search: "",
     page: 1,
     limit: 10,
   });
 
-  // ডিবাউন্সড ফেচ ফাংশন
   const debouncedFetchCategories = useCallback(
     debounce((newFilters) => {
       console.log(newFilters);
@@ -51,8 +50,17 @@ const CategoriesPage = () => {
     console.log(id);
   };
   return (
-    <div className="relative h-full w-full p-4">
-      <div className="flex items-center justify-between mb-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="w-full p-4"
+    >
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center justify-between mb-4"
+      >
         <Input
           name="search"
           type="search"
@@ -63,21 +71,57 @@ const CategoriesPage = () => {
         />
 
         <CategoryCreateButton />
-      </div>
-      {loading && <p className="text-center">Loading categories...</p>}
-      {error && (
-        <div className="text-red-500 text-center">
-          {error} <button className="underline">Retry</button>
-        </div>
-      )}
-      {!loading && !error && (
-        <QuizCategories
-          categories={categories}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
-      )}
-    </div>
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        {loading && (
+          <motion.p
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="text-center"
+          >
+            Loading categories...
+          </motion.p>
+        )}
+
+        {error && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="text-red-500 text-center"
+          >
+            {error}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="underline"
+            >
+              Retry
+            </motion.button>
+          </motion.div>
+        )}
+
+        {!loading && !error && (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <QuizCategories
+              categories={categories}
+              onDelete={onDelete}
+              onEdit={onEdit}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

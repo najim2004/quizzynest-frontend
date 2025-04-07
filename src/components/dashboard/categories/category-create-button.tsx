@@ -18,8 +18,8 @@ const CategoryCreateButton = () => {
         <Plus className="h-4 w-4" />
         <span className="text-gray-500 sr-only">Add Category</span>
       </Button>
-      <CustomModal ref={modalRef} className="w-full">
-        <div className="relative h-full w-full">
+      <CustomModal ref={modalRef} className="w-full p-4 bg-transparent z-10">
+        <div className="relative h-full w-full bg-white">
           <Button
           onClick={() => modalRef.current?.close()}
             size="icon"

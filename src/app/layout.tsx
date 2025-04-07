@@ -36,11 +36,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <InitialFetcher>
-            <Hider pathnames={["dashboard"]}>
+            <Hider pathnames={["quiz"]}>
               <Navbar />
             </Hider>
             <main className="dark:bg-gray-900">{children}</main>
-            <Hider pathnames={["dashboard", "login", "signup"]}>
+            <Hider pathnames={["dashboard", "login", "signup", "quiz"]}>
               <Footer />
             </Hider>
           </InitialFetcher>

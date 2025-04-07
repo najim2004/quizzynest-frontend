@@ -42,7 +42,7 @@ const PlayQuiz: React.FC<PlayQuizProps> = ({
       className="w-full"
     >
       <Card className="w-full max-w-3xl mx-auto flex flex-col h-[90vh] border-none shadow-lg rounded-xl overflow-hidden bg-transparent p-0">
-        <CardHeader className="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] p-6 text-white">
+        <CardHeader className="bg-primary p-6 text-white">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -95,9 +95,8 @@ const PlayQuiz: React.FC<PlayQuizProps> = ({
                     onClick={() => onOptionSelect(option.id)}
                     disabled={loading}
                     className={cn(
-                      "w-full h-14 flex items-center justify-start px-4 bg-white border-gray-200 shadow-sm hover:bg-gradient-to-r hover:from-[#6C5CE7] hover:to-[#4834D4] transition-colors duration-200 group",
-                      selectedOption === option.id &&
-                        "bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] border-none"
+                      "w-full h-14 flex items-center justify-start px-4 bg-white border-gray-200 shadow-sm hover:bg-primary transition-colors duration-200 group",
+                      selectedOption === option.id && "bg-primary border-none"
                     )}
                   >
                     <span className="text-sm font-medium bg-gray-100 group-hover:text-gray-800 rounded-full w-8 h-8 flex items-center justify-center mr-4 shrink-0">
@@ -123,7 +122,7 @@ const PlayQuiz: React.FC<PlayQuizProps> = ({
         <CardFooter className="p-6 bg-white/80 backdrop-blur-sm border-t flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Progress
-              indicatorClassName="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4]"
+              indicatorClassName="bg-primary"
               value={
                 ((quiz?.currentQuizIndex ? quiz.currentQuizIndex + 1 : 0) /
                   (currentSession?.totalQuestions ?? 0)) *
@@ -140,7 +139,7 @@ const PlayQuiz: React.FC<PlayQuizProps> = ({
             <Button
               onClick={onContinue}
               disabled={!selectedOption || loading}
-              className="bg-gradient-to-r from-[#6C5CE7] to-[#4834D4] text-white px-6 py-2 rounded-md hover:from-[#5A4BCF] hover:to-[#3B2DBA] transition-all"
+              className="bg-primary text-white px-6 py-2 rounded-md hover:from-[#5A4BCF] hover:to-[#3B2DBA] transition-all"
             >
               {loading ? "Submitting..." : "Next"}
             </Button>

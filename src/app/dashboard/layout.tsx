@@ -1,3 +1,4 @@
+import { DashboardMobileNavbar } from "@/components/dashboard/dashboard-mobile-navbar/dashboard-mobile-navbar";
 import DashboardSidebar from "@/components/dashboard/dashboard-sidebar/dashboard-sidebar";
 import { ReactNode } from "react";
 
@@ -18,11 +19,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   if (!checkAuth()) return null;
 
   return (
-    <div className="h-screen py-8 bg-gray-50">
-      <div className="h-full flex borderrounded-3xl bg-white container mx-auto p-0 overflow-hidden ">
+    <div className="lg:h-screen lg:py-8 lg:bg-gray-50">
+      <div className="h-full flex lg:border lg:rounded-3xl bg-white container mx-auto p-0 overflow-hidden">
         <DashboardSidebar />
-        <main className="flex-1 overflow-hidden overflow-y-auto relative">{children}</main>
+        <main className="flex-1 overflow-hidden overflow-y-auto relative">
+          {children}
+        </main>
       </div>
+      <DashboardMobileNavbar />
     </div>
   );
 }
