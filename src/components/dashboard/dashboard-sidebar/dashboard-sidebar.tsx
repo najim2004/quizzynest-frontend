@@ -1,6 +1,14 @@
 "use client";
 import { NavLink } from "@/components/navlink/navlink";
-import { Brain, Home, Settings, ShoppingCart, Ticket } from "lucide-react";
+import {
+  Brain,
+  History,
+  Home,
+  Medal,
+  Settings,
+  ShoppingCart,
+  Ticket,
+} from "lucide-react";
 import { MdCategory, MdOutlineLeaderboard } from "react-icons/md";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 
@@ -29,6 +37,18 @@ const items = [
     title: "Leaderboard",
     url: "/dashboard/leaderboard",
     icon: MdOutlineLeaderboard,
+    accessOnly: "USER",
+  },
+  {
+    title: "History",
+    url: "/dashboard/history",
+    icon: History,
+    accessOnly: "USER",
+  },
+  {
+    title: "Achievements",
+    url: "/dashboard/achievements",
+    icon: Medal,
     accessOnly: "USER",
   },
   {

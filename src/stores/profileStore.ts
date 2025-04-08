@@ -9,7 +9,15 @@ interface stats {
   totalCorrectAnswers: number;
   rankThisMonth: number;
   successRate: number;
+  categoryScores: CategoryScore[];
 }
+
+interface CategoryScore {
+  categoryId: number;
+  categoryName: string;
+  accuracy: number;
+}
+
 enum AchievementType {
   QUIZ_MASTER,
   HIGH_SCORER,
@@ -69,6 +77,7 @@ const useProfileStore = create<ProfileState>((set) => ({
     totalCorrectAnswers: 0,
     rankThisMonth: 0,
     successRate: 0,
+    categoryScores: [],
   },
   loadings: {
     stats: false,
