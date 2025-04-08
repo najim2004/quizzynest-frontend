@@ -14,6 +14,7 @@ import useQuizStore from "@/stores/quizStore";
 import React, { useEffect, useState, useCallback } from "react";
 import debounce from "lodash/debounce"; // lodash থেকে debounce ইমপোর্ট করা
 import { toast } from "sonner";
+import PrivateRoute from "@/components/private-route/private-route";
 
 const DashboardQuestions = () => {
   const {
@@ -162,4 +163,10 @@ const DashboardQuestions = () => {
   );
 };
 
-export default DashboardQuestions;
+export default function Page() {
+  return (
+    <PrivateRoute roles={["ADMIN"]}>
+      <DashboardQuestions />
+    </PrivateRoute>
+  );
+}

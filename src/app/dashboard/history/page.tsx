@@ -11,6 +11,7 @@ import {
 import QuizHistoryCard from "@/components/dashboard/home/quiz-histories/quiz-histories-card";
 import useProfileStore from "@/stores/profileStore";
 import { Button } from "@/components/ui/button";
+import PrivateRoute from "@/components/private-route/private-route";
 const QuizHistories = () => {
   const { quizHistory } = useProfileStore();
   return (
@@ -42,4 +43,10 @@ const QuizHistories = () => {
   );
 };
 
-export default QuizHistories;
+export default function Page() {
+  return (
+    <PrivateRoute roles={["USER"]}>
+      <QuizHistories />
+    </PrivateRoute>
+  );
+}

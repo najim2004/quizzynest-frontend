@@ -32,6 +32,7 @@ const items = [
     title: "Play Quiz",
     url: "/dashboard/quiz",
     icon: IoExtensionPuzzleOutline,
+    accessOnly:"USER"
   },
   {
     title: "Leaderboard",

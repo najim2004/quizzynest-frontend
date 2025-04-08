@@ -8,6 +8,7 @@ import { useCategoryStore } from "@/stores/categoryStore";
 import { toast } from "sonner";
 import QuizResult from "@/components/dashboard/quiz/quiz-resutl";
 import PlayQuiz from "@/components/dashboard/quiz/play-quiz";
+import PrivateRoute from "@/components/private-route/private-route";
 
 // Add type guard function at the top of the file
 const isDifficultyLevel = (value: string): value is DifficultyLevel => {
@@ -138,7 +139,7 @@ function PlayGroundContent() {
   );
 }
 
-export default function PlayGround() {
+function PlayGround() {
   return (
     <Suspense
       fallback={
@@ -149,5 +150,13 @@ export default function PlayGround() {
     >
       <PlayGroundContent />
     </Suspense>
+  );
+}
+
+export default function Page() {
+  return (
+    <PrivateRoute roles={["USER"]}>
+      <PlayGround />
+    </PrivateRoute>
   );
 }

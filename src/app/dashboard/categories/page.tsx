@@ -3,32 +3,19 @@ import QuizCategories from "@/components/dashboard/categories/categories";
 import CategoryCreateButton from "@/components/dashboard/categories/category-create-button";
 import { Input } from "@/components/ui/input";
 import { useCategoryStore } from "@/stores/categoryStore";
-import React, { useEffect, useState, useCallback } from "react";
-import debounce from "lodash/debounce";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import PrivateRoute from "@/components/private-route/private-route";
 
 const CategoriesPage = () => {
-  const { categories, fetchCategories, loading, error, deleteCategory } =
-    useCategoryStore();
+  const { categories, loading, error, deleteCategory } = useCategoryStore();
 
   const [filters, setFilters] = useState({
     search: "",
     page: 1,
     limit: 10,
   });
-
-  const debouncedFetchCategories = useCallback(
-    debounce((newFilters) => {
-      console.log(newFilters);
-      fetchCategories();
-    }, 500),
-    [fetchCategories]
-  );
-
-  useEffect(() => {
-    debouncedFetchCategories(filters);
-  }, [filters, debouncedFetchCategories]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilters((prev) => ({ ...prev, search: e.target.value, page: 1 }));
@@ -125,4 +112,10 @@ const CategoriesPage = () => {
   );
 };
 
-export default CategoriesPage;
+export default function Page() {
+  return (
+    <PrivateRoute roles={["ADMIN"]}>
+      <CategoriesPage />
+    </PrivateRoute>
+  );
+}

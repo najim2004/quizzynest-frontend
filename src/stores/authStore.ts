@@ -127,6 +127,9 @@ const useAuthStore = create<AuthState>()(
 
       getUser: async () => {
         try {
+          set({
+            loading: true,
+          });
           const token = get().accessToken;
           if (!token) throw new Error("No access token available");
 
@@ -143,11 +146,13 @@ const useAuthStore = create<AuthState>()(
             const profileStore = useProfileStore.getState();
 
             // Fetch user stats, achievements, and quiz history in parallel
-            await Promise.all([
-              profileStore.fetchUserStats(),
-              profileStore.fetchAchievements(),
-              profileStore.fetchQuizHistory(),
-            ]);
+            if (get().accessToken) {
+              await Promise.all([
+                profileStore.fetchUserStats(),
+                profileStore.fetchAchievements(),
+                profileStore.fetchQuizHistory(),
+              ]);
+            }
           }
         } catch (error) {
           const axiosError = error as AxiosError<ApiError>;

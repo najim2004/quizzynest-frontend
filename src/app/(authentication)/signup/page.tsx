@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import useAuthStore from "@/stores/authStore";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 const formSchema = z
@@ -58,7 +58,8 @@ export default function Signup() {
   });
   const { register } = useAuthStore();
   const router = useRouter();
-
+  const searchParams = useSearchParams();
+  const returnUrl: string = searchParams.get("returnUrl") ?? "/login";
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const result = await register(
@@ -70,7 +71,7 @@ export default function Signup() {
 
       if (result?.success) {
         // You might want to add a toast notification here for success
-        router.push("/login");
+        router.push(`/login?returnUrl=${returnUrl}`);
         toast.success(result?.message || "User created successfully");
       } else {
         // You might want to add a toast notification here for failure

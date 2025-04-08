@@ -1,13 +1,14 @@
 "use client";
 import { CategoryQuizCard } from "@/components/dashboard/categories/category-card";
 import NewQuizPage from "@/components/dashboard/quiz/new-quiz";
+import PrivateRoute from "@/components/private-route/private-route";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCategoryStore } from "@/stores/categoryStore";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
-export default function QuizCategories() {
+function QuizCategories() {
   const { categories } = useCategoryStore();
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null
@@ -61,5 +62,13 @@ export default function QuizCategories() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <PrivateRoute roles={["USER"]}>
+      <QuizCategories />
+    </PrivateRoute>
   );
 }

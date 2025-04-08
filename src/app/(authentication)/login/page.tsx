@@ -20,7 +20,7 @@ import { FaFacebook } from "react-icons/fa";
 import { Brain } from "lucide-react";
 import useAuthStore from "@/stores/authStore";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -34,12 +34,14 @@ export default function Login() {
   });
   const router = useRouter();
   const { login } = useAuthStore();
+  const searchParams = useSearchParams();
+  const returnUrl: string = searchParams.get("returnUrl") ?? "/dashboard";
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const result = await login(values.email, values.password);
       if (result?.success) {
         toast.success(result?.message || "Login successful");
-        router.push("/dashboard");
+        router.push(`${returnUrl}`);
       } else {
         toast.error(result?.message || "Login failed");
       }
@@ -158,7 +160,10 @@ export default function Login() {
 
         <div className="text-center text-sm mt-4">
           Don’t have an account?{" "}
-          <Link href="/signup" className="text-blue-500 hover:underline">
+          <Link
+            href={`/signup?returnUrl=${returnUrl}`}
+            className="text-blue-500 hover:underline"
+          >
             Sign up
           </Link>
         </div>

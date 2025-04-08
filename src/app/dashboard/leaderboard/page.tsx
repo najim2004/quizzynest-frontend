@@ -1,4 +1,5 @@
 import AllUserRank from "@/components/dashboard/leaderboard/all-user-rank";
+import PrivateRoute from "@/components/private-route/private-route";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Coins, Crown } from "lucide-react";
@@ -12,7 +13,7 @@ type LeaderboardEntry = {
   position: number;
 };
 
-export default function LeaderboardUI() {
+function Leaderboard() {
   const leaderboardData: LeaderboardEntry[] = [
     {
       id: 1,
@@ -183,7 +184,15 @@ export default function LeaderboardUI() {
           </div>
         </div>
       </div>
-      <AllUserRank/>
+      <AllUserRank />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <PrivateRoute roles={["USER"]}>
+      <Leaderboard />
+    </PrivateRoute>
   );
 }
