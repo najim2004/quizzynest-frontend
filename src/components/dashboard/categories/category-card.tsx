@@ -47,8 +47,6 @@ export const CategoryQuizCard = ({
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      whileHover={{ scale: 1.05, transition: { type: "spring", stiffness: 300 } }}
-      whileTap={{ scale: 0.98 }}
       className="overflow-hidden rounded-lg h-full"
     >
       <Card className="hover:shadow-md h-full transition-shadow px-0 pt-0">

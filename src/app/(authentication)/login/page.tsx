@@ -47,7 +47,7 @@ export default function Login() {
       }
     } catch (error) {
       toast.error(error instanceof Error ? error?.message : "Login failed");
-      console.error("Login failed:", error);
+      console.log("Login failed:", error);
     }
   }
 

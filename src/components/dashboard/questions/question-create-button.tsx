@@ -18,17 +18,17 @@ const QuestionCreateButton = () => {
         <Plus className="h-4 w-4" />
         <span className="text-gray-500 sr-only">Add Category</span>
       </Button>
-      <CustomModal ref={modalRef} className="w-full p-6">
-        <div className="relative max-h-full w-full">
+      <CustomModal ref={modalRef} className="w-full bg-white h-[calc(100vh-32px] overflow-hidden p-4">
+        <div className="relative h-full w-full">
           <Button
             onClick={() => modalRef.current?.close()}
             size="icon"
             variant="outline"
-            className="absolute top-0.5 right-0.5"
+            className="absolute top-0.5 right-0.5 bg-white"
           >
             <IoClose />
           </Button>
-          <div className="w-full max-h-full overflow-y-auto">
+          <div className="w-full overflow-y-auto max-h-full py-5">
             <AddQuestionForm />
           </div>
         </div>

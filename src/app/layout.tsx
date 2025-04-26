@@ -44,7 +44,7 @@ export default function RootLayout({
               <Footer />
             </Hider>
           </InitialFetcher>
-          <Toaster />
+          <Toaster className="z-[9999]" />
         </ThemeProvider>
       </body>
     </html>

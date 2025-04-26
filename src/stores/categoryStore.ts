@@ -52,6 +52,9 @@ export const useCategoryStore = create<CategoryStore>((set) => ({
     try {
       set({ loading: true });
       const response = await api.get<APIResponse<Category[]>>("/categories");
+      if (!response.data.success)
+        throw new Error(response.data.message || "Failed to fetch categories");
+      if (!response.data.data) throw new Error("No categories found");
       set({ categories: response.data.data, error: null });
     } catch (error) {
       const apiError = error as ApiError;

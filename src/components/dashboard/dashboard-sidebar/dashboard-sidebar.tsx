@@ -9,7 +9,11 @@ import {
   ShoppingCart,
   Ticket,
 } from "lucide-react";
-import { MdCategory, MdOutlineLeaderboard } from "react-icons/md";
+import {
+  MdAutoAwesome,
+  MdCategory,
+  MdOutlineLeaderboard,
+} from "react-icons/md";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 
 import { IoExtensionPuzzleOutline } from "react-icons/io5";
@@ -32,7 +36,7 @@ const items = [
     title: "Play Quiz",
     url: "/dashboard/quiz",
     icon: IoExtensionPuzzleOutline,
-    accessOnly:"USER"
+    accessOnly: "USER",
   },
   {
     title: "Leaderboard",
@@ -64,10 +68,17 @@ const items = [
     icon: MdCategory,
     accessOnly: "ADMIN",
   },
+
   {
     title: "Questions",
     url: "/dashboard/questions",
     icon: FaQuestion,
+    accessOnly: "ADMIN",
+  },
+  {
+    title: "Quiz Generator",
+    url: "/dashboard/quiz-generator",
+    icon: MdAutoAwesome,
     accessOnly: "ADMIN",
   },
   {

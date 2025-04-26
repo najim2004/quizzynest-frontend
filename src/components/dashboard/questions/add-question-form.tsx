@@ -108,7 +108,7 @@ export function AddQuestionForm() {
 
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <Card className="w-full max-w-2xl border-none shadow-none">
+      <Card className="w-full max-w-2xl border-none shadow-none bg-transparent">
         <CardHeader>
           <CardTitle className="text-center text-2xl font-semibold">
             Create A New Question
