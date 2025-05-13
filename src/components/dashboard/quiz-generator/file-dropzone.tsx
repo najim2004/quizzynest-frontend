@@ -20,7 +20,7 @@ export function FileDropzone({ onDrop, disabled }: Props) {
   return (
     <div
       {...getRootProps()}
-      className={`w-[calc(100%-8rem)] border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-colors ${
+      className={`w-full md:w-[calc(100%-8rem)] border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-colors ${
         isDragActive
           ? "border-primary bg-primary/5"
           : disabled

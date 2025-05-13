@@ -65,7 +65,8 @@ const DashboardQuestions = () => {
   const handleDifficultyChange = (value: string) => {
     setFilters((prev) => ({
       ...prev,
-      difficulty: value as "EASY" | "MEDIUM" | "HARD" | undefined,
+      difficulty:
+        value == "ALL" ? undefined : (value as "EASY" | "MEDIUM" | "HARD"),
       page: 1,
     }));
   };
@@ -128,7 +129,7 @@ const DashboardQuestions = () => {
               <SelectValue placeholder="Select Difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={"all"}>All</SelectItem>
+              <SelectItem value={"ALL"}>All</SelectItem>
               <SelectItem value="EASY">Easy</SelectItem>
               <SelectItem value="MEDIUM">Medium</SelectItem>
               <SelectItem value="HARD">Hard</SelectItem>
