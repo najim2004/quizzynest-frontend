@@ -26,7 +26,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    if (error?.status === 401 || error?.response?.status === 401) {
+    if (error?.status === 401 || error?.response?.status === 401|| error?.status===429|| error?.response?.status===429) {
       const { accessToken } = useAuthStore.getState();
       if (accessToken) {
         useAuthStore.setState({

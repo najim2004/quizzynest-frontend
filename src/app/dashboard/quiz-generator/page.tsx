@@ -1,9 +1,12 @@
 "use client";
 
+import QuestionCard from "@/components/dashboard/questions/QuestionCard";
 import { FileDropzone } from "@/components/dashboard/quiz-generator/file-dropzone";
 import { FilePreview } from "@/components/dashboard/quiz-generator/file-preview";
 import { useFileUploader } from "@/components/dashboard/quiz-generator/useFileUploader";
+import JobProgressBar from "@/components/dashboard/quiz-generator/JobProgressBar";
 import { Button } from "@/components/ui/button";
+import { useCategoryStore } from "@/stores/categoryStore";
 import useQuizGeneratorStore from "@/stores/quizGeneratorStore";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -21,14 +24,16 @@ const QuizGenerator = () => {
     initiateQuizGeneration,
     getPendingQuizzes,
     checkJobStatus,
+    updateQuiz,
+    deleteQuiz,
     pendingQuizzes,
     jobId,
     jobStatus,
     jobProgress,
     error,
-    resetStore,
     message,
   } = useQuizGeneratorStore();
+  const { categories } = useCategoryStore();
   useEffect(() => {
     const fetchPendingQuizzes = async () => {
       await getPendingQuizzes(filters);
@@ -57,7 +62,8 @@ const QuizGenerator = () => {
   useEffect(() => {
     if (
       !jobId ||
-      jobStatus === "completed" ||
+      (jobStatus !== "processing" && jobStatus !== "pending") ||
+      jobStatus == null ||
       jobProgress == 100 ||
       pendingQuizzes?.length > 0
     )
@@ -70,9 +76,35 @@ const QuizGenerator = () => {
     };
   }, [jobId, checkJobStatus, jobStatus, jobProgress, pendingQuizzes]);
 
+  const handlePublish = async (quizId: number) => {
+    try {
+      const res = await updateQuiz(quizId, { status: "PUBLISHED" });
+
+      toast.success(res.message || "Quiz published successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to publish quiz"
+      );
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await deleteQuiz(id);
+      toast.success(res.message || "Quiz removed successful");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete quiz"
+      );
+    }
+  };
   return (
     <>
-      {pendingQuizzes?.length <= 0 && (
+      {jobStatus === "pending" || jobStatus === "processing" ? (
+        <div className="p-4 h-full flex flex-col items-center justify-center w-full">
+          <JobProgressBar progress={jobProgress || 0} status={jobStatus} />
+        </div>
+      ) : pendingQuizzes?.length <= 0 ? (
         <div className="p-4 h-full flex flex-col items-center justify-center w-full">
           <FileDropzone onDrop={onDrop} disabled={files.length >= MAX_FILES} />
           {files.length > 0 && (
@@ -87,6 +119,23 @@ const QuizGenerator = () => {
               </Button>
             </>
           )}
+        </div>
+      ) : (
+        <div className="p-4">
+          <div className="flex flex-col items-center justify-center w-full gap-y-4">
+            {pendingQuizzes.map((quiz, index) => (
+              <QuestionCard
+                key={quiz.id}
+                index={index}
+                question={quiz}
+                onDelete={() => handleDelete(quiz.id)}
+                onEdit={() => {}}
+                categories={categories}
+                isDraft={true}
+                onPublish={() => handlePublish(quiz.id)}
+              />
+            ))}
+          </div>
         </div>
       )}
     </>

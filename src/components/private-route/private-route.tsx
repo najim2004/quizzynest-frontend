@@ -24,19 +24,19 @@ const PrivateRoute = ({ children, roles = [] }: PrivateRouteProps) => {
 
     try {
       if (!isAuthenticated || !accessToken) {
+        logout();
         router.push(
           `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`
         );
-        logout();
         return;
       }
 
       // Check role-based access
       if (roles.length && !roles.includes(user?.role as string)) {
+        logout();
         router.push(
           `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`
         );
-        logout();
         return;
       }
     } catch {

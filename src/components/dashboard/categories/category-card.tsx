@@ -47,13 +47,10 @@ export const CategoryQuizCard = ({
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="overflow-hidden rounded-lg h-full"
+      className="overflow-hidden rounded-md h-full"
     >
-      <Card className="hover:shadow-md h-full transition-shadow px-0 pt-0">
-        <CardHeader
-          className="py-4 min-h-[160px]"
-          style={{ backgroundColor: color }}
-        >
+      <Card className="hover:shadow-md h-full transition-shadow px-0 pt-0 rounded-md border">
+        <CardHeader className="py-4" style={{ backgroundColor: color + "90" }}>
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -83,7 +80,9 @@ export const CategoryQuizCard = ({
               )}
             </div>
           </motion.div>
-          <CardTitle className="mt-4 md:text-xl">{name}</CardTitle>
+          <CardTitle className="mt-4 md:text-xl text-gray-700">
+            {name}
+          </CardTitle>
           <CardDescription className="text-foreground/70">
             {description}
           </CardDescription>
